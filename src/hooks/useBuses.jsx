@@ -17,7 +17,6 @@ const useBuses = (from, to, date) => {
       try {
         const formattedDate = new Date(date).toISOString().split('T')[0];
 
-        // Trip bilgilerini al
         const { data: trips } = await axios.get(`${baseURL}/api/Trips`, {
           params: { departure_city: from, arrival_city: to, date: formattedDate },
         });
@@ -27,19 +26,16 @@ const useBuses = (from, to, date) => {
           return;
         }
 
-        // Ticket bilgilerini al
         const ticketRequests = trips.map((trip) =>
           axios.get(`${baseURL}/api/Tickets`, { params: { trip_id: trip.trip_id } })
         );
         const ticketResponses = await Promise.all(ticketRequests);
 
-        // Bus bilgilerini al
         const { data: buses } = await axios.get(`${baseURL}/api/Buses`);
 
-        // Ticket ve Bus verilerini birleştir
-        const enrichedTickets = ticketResponses.flatMap(({ data: tickets }, index) =>
+        const enrichedTickets = ticketResponses.flatMap(({ data: trips }, index) =>
           tickets.map((ticket) => {
-            const bus = buses.find((bus) => bus.bus_id === ticket.bus_id);
+            const bus = buses.find((bus) => bus.bus_id === trips.bus_id);
             return {
               ...ticket,
               trip: trips[index],

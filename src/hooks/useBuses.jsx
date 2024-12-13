@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
+//a
 const useBuses = (from, to, date) => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -25,11 +25,6 @@ const useBuses = (from, to, date) => {
           setTickets([]);
           return;
         }
-
-        const ticketRequests = trips.map((trip) =>
-          axios.get(`${baseURL}/api/Tickets`, { params: { trip_id: trip.trip_id } })
-        );
-        const ticketResponses = await Promise.all(ticketRequests);
 
         const { data: buses } = await axios.get(`${baseURL}/api/Buses`);
 

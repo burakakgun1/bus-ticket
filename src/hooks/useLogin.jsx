@@ -3,34 +3,66 @@ import axios from 'axios';
 import useNotification from '../components/Notification';
 
 const useLogin = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const notify = useNotification();
+ const [loading, setLoading] = useState(false);
+ const [error, setError] = useState(null);
+ const notify = useNotification();
 
-  const login = async (email, password) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.post('api/Users/login', { 
-        email, 
-        password 
-      });
-      notify.success('Giriş başarılı!');
-      // Token ve kullanıcı bilgilerini localStorage'a kaydet
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      return response.data;
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Giriş başarısız.';
-      setError(errorMessage);
-      notify.error(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+ const baseURL = 'https://localhost:44378';
 
-  return { login, loading, error };
+ const login = async (email, password) => {
+   // Input validation
+   if (!email || !password) {
+     const errorMessage = 'Email ve şifre boş bırakılamaz.';
+     notify.error(errorMessage);
+     setError(errorMessage);
+     return;
+   }
+
+   setLoading(true);
+   setError(null);
+
+   try {
+     const response = await axios.post(
+       `${baseURL}/api/Users/Login`, 
+       null,
+       {
+         params: {
+           email: email.trim(),
+           password: password.trim()
+         }
+       }
+     );
+
+     localStorage.setItem('token', response.data.token);
+     localStorage.setItem('user', JSON.stringify(response.data.user));
+
+     notify.success('Giriş başarılı!');
+     return response.data;
+   } catch (err) {
+     const errorMessage = 
+       err.response?.data?.message || 
+       'Giriş başarısız.';
+
+     setError(errorMessage);
+     notify.error(errorMessage);
+     throw err;
+   } finally {
+     setLoading(false);
+   }
+ };
+
+ const logout = () => {
+   localStorage.removeItem('token');
+   localStorage.removeItem('user');
+   notify.success('Çıkış başarılı!');
+ };
+
+ return { 
+   login, 
+   logout, 
+   loading, 
+   error 
+ };
 };
 
 export default useLogin;

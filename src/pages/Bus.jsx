@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import useTicket from '../hooks/useTicket';
 import SeatSelection from './SeatSelection';
 
-const Ticket = () => {
+const Bus = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const location = useLocation();
   const { from, to, date } = location.state || {};
@@ -90,4 +90,4 @@ const Ticket = () => {
   );
 };
 
-export default Ticket;
+export default Bus;

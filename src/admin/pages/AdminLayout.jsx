@@ -12,7 +12,7 @@ const AdminLayout = () => {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const busResponse = await fetch('/api/buses');
+        const busResponse = await fetch('/api/Buses');
         const routeResponse = await fetch('/api/routes');
         const ticketResponse = await fetch('/api/tickets');
 

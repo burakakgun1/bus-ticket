@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import useRegister from '../hooks/useRegister';
 import useLogin from '../hooks/useLogin';
@@ -25,16 +25,18 @@ const PasswordInput = ({ name, value, onChange, placeholder, showPassword, toggl
 );
 
 const LoginRegisterModal = ({ type, onClose }) => {
-  const { login, loading: loginLoading, error: loginError } = useLogin();
+  const { login, logout, loading: loginLoading, error: loginError } = useLogin();
   const { register, loading: registerLoading, error: registerError } = useRegister();
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [formData, setFormData] = useState({
+    name: '',
+    surname: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    firstName: '',
-    lastName: '',
-    phoneNumber: ''
+    phone_number: '',
+    confirmPassword: ''
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -43,8 +45,23 @@ const LoginRegisterModal = ({ type, onClose }) => {
   const [errors, setErrors] = useState({
     email: '',
     password: '',
-    phone: ''
+    phone_number: ''
   });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    try {
+      if (storedUser && token) {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+      }
+    } catch (error) {
+      console.error('Error parsing user from localStorage:', error);
+      localStorage.removeItem('user');
+    }
+  }, []);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -61,10 +78,10 @@ const LoginRegisterModal = ({ type, onClose }) => {
       setErrors({ ...errors, password: value !== formData.confirmPassword ? 'Şifreler uyuşmuyor.' : '' });
     } else if (name === 'confirmPassword') {
       setErrors({ ...errors, password: value !== formData.password ? 'Şifreler uyuşmuyor.' : '' });
-    } else if (name === 'phoneNumber') {
+    } else if (name === 'phone_number') {
       const phoneValue = value.replace(/\D/g, '');
-      setFormData({ ...formData, phoneNumber: phoneValue });
-      setErrors({ ...errors, phone: phoneValue.length > 10 ? 'Telefon numarası en fazla 10 haneli olabilir.' : '' });
+      setFormData({ ...formData, phone_number: phoneValue });
+      setErrors({ ...errors, phone_number: phoneValue.length > 10 ? 'Telefon numarası en fazla 10 haneli olabilir.' : '' });
     }
   };
 
@@ -78,7 +95,14 @@ const LoginRegisterModal = ({ type, onClose }) => {
 
   const validateForm = () => {
     return validateEmail(formData.email) && 
-           (type !== 'register' || (formData.phoneNumber.length === 10 && !errors.phone));
+           (type !== 'register' || (formData.phone_number.length === 10 && !errors.phone_number));
+  };
+
+  const handleLogout = () => {
+    logout();
+    setUser(null);
+    setIsAuthenticated(false);
+    onClose();
   };
 
   const handleSubmit = async (e) => {
@@ -87,22 +111,43 @@ const LoginRegisterModal = ({ type, onClose }) => {
 
     try {
       if (type === 'signin') {
-        await login(formData.email, formData.password);
+        const response = await login(formData.email, formData.password);
+        setUser(response.user);
+        setIsAuthenticated(true);
       } else {
         if (formData.password !== formData.confirmPassword) return;
         await register(
+          formData.name, 
+          formData.surname, 
           formData.email, 
           formData.password, 
-          formData.firstName, 
-          formData.lastName, 
-          formData.phoneNumber
+          formData.phone_number
         );
       }
       onClose();
     } catch (error) {
-      // Hata yönetimi
+      console.error(error);
     }
   };
+
+  if (isAuthenticated && user) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-bold">Hoş Geldiniz, {user.name} {user.surname}</h2>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✖</button>
+          </div>
+          <button 
+            onClick={handleLogout} 
+            className="w-full bg-red-500 text-white py-2 rounded"
+          >
+            Çıkış Yap
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center login-register-modal" onClick={onClose}>
@@ -113,6 +158,13 @@ const LoginRegisterModal = ({ type, onClose }) => {
           </h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✖</button>
         </div>
+        
+        {(loginError || registerError) && (
+          <div className="mb-4 text-red-500">
+            {loginError || registerError}
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit}>
           {type === 'register' && (
             <>
@@ -120,8 +172,8 @@ const LoginRegisterModal = ({ type, onClose }) => {
                 <label className="block text-gray-700">İsim:</label>
                 <input
                   type="text"
-                  name="firstName"
-                  value={formData.firstName}
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded mt-1"
                   placeholder="İsminizi giriniz"
@@ -132,8 +184,8 @@ const LoginRegisterModal = ({ type, onClose }) => {
                 <label className="block text-gray-700">Soy İsim:</label>
                 <input
                   type="text"
-                  name="lastName"
-                  value={formData.lastName}
+                  name="surname"
+                  value={formData.surname}
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded mt-1"
                   placeholder="Soy isminizi giriniz"
@@ -144,18 +196,19 @@ const LoginRegisterModal = ({ type, onClose }) => {
                 <label className="block text-gray-700">Telefon Numarası:</label>
                 <input
                   type="text"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
+                  name="phone_number"
+                  value={formData.phone_number}
                   onChange={handleChange}
                   onKeyPress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()}
-                  className={`w-full p-2 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded mt-1`}
+                  className={`w-full p-2 border ${errors.phone_number ? 'border-red-500' : 'border-gray-300'} rounded mt-1`}
                   placeholder="Telefon numaranızı giriniz"
                   required
                 />
-                {errors.phone && <p className="text-red-500 mt-1">{errors.phone}</p>}
+                {errors.phone_number && <p className="text-red-500 mt-1">{errors.phone_number}</p>}
               </div>
             </>
           )}
+          
           <div className="mb-4">
             <label className="block text-gray-700">Email:</label>
             <input
@@ -169,6 +222,7 @@ const LoginRegisterModal = ({ type, onClose }) => {
             />
             {errors.email && <p className="text-red-500 mt-1">{errors.email}</p>}
           </div>
+          
           <div className="mb-4">
             <label className="block text-gray-700">Şifre:</label>
             <PasswordInput
@@ -180,6 +234,7 @@ const LoginRegisterModal = ({ type, onClose }) => {
               toggleVisibility={() => togglePasswordVisibility('password')}
             />
           </div>
+          
           {type === 'register' && (
             <div className="mb-4">
               <label className="block text-gray-700">Şifre (Tekrar):</label>
@@ -194,8 +249,16 @@ const LoginRegisterModal = ({ type, onClose }) => {
               {errors.password && <p className="text-red-500 mt-1">{errors.password}</p>}
             </div>
           )}
-          <button type="submit" className="w-full bg-gray-800 text-white py-2 rounded" disabled={loginLoading || registerLoading}>
-            {type === 'signin' ? (loginLoading ? 'Giriş Yapılıyor...' : 'Giriş Yap') : (registerLoading ? 'Kayıt Olunuyor...' : 'Kayıt Ol')}
+          
+          <button 
+            type="submit" 
+            className="w-full bg-gray-800 text-white py-2 rounded" 
+            disabled={loginLoading || registerLoading}
+          >
+            {type === 'signin' 
+              ? (loginLoading ? 'Giriş Yapılıyor...' : 'Giriş Yap') 
+              : (registerLoading ? 'Kayıt Olunuyor...' : 'Kayıt Ol')
+            }
           </button>
         </form>
       </div>

@@ -7,16 +7,18 @@ const useRegister = () => {
   const [error, setError] = useState(null);
   const notify = useNotification();
 
-  const register = async (email, password, firstName, lastName, phoneNumber) => {
+  const baseURL = 'https://localhost:44378';
+
+  const register = async (name, surname, email, password, phone_number) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post('api/Users', { 
+      const response = await axios.post(`${baseURL}/api/Users/CreateUser`, { 
+        name, 
+        surname,
         email, 
         password,
-        firstName,
-        lastName,
-        phoneNumber
+        phone_number
       });
       notify.success('Kayıt başarılı!');
       return response.data;

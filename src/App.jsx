@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Ticket from './pages/Ticket';
 import AdminLayout from './admin/pages/AdminLayout';
 import About from './pages/About';
+import Bus from './pages/Bus';
 
 const App = () => {
   return (
@@ -15,7 +16,8 @@ const App = () => {
     <Routes>
     <Route path="/" element={<><Navbar /><Home /></>} />
     <Route path="/profile" element={<><Navbar /><Profile /></>} />
-    <Route path="/ticket" element={<><Navbar /><Ticket /></>} />
+    <Route path='/buses' element={<><Navbar /><Bus /></>} />
+    <Route path="/tickets" element={<><Navbar /><Ticket /></>} />
     <Route path='/about' element={<><Navbar /><About/></>} />
 
       <Route path="/admin" element={<AdminLayout />}>

@@ -9,8 +9,19 @@ import { useNavigate } from 'react-router-dom';
 registerLocale('tr', tr);
 
 const Home = () => {
-  const { from, to, date, locations, destinations, loading, error, setFrom, setTo, setDate, handleSearch } = useHome(); 
-  const navigate = useNavigate(); 
+  const { 
+    from, 
+    to, 
+    date, 
+    locations, 
+    destinations, 
+    loading, 
+    error, 
+    setFrom, 
+    setTo, 
+    setDate, 
+    handleSearch 
+  } = useHome(); 
 
   return (
     <div className="h-screen w-full bg-cover bg-center flex flex-col justify-center items-center" style={{ backgroundImage: "url('/bus-background.jpeg')" }}>
@@ -18,22 +29,33 @@ const Home = () => {
         Otobüs Biletinizi Satın Alın
       </h1>
 
-      {/* Loading Spinner veya Hata Mesajı */}
       {loading && <div className="text-white">Yükleniyor...</div>}
       {error && <div className="text-red-500">{error}</div>}
 
       <div className="flex space-x-4 mb-8">
-        <select value={from} onChange={(e) => setFrom(e.target.value)} className="p-2 border border-gray-300 rounded-md">
+        <select 
+          value={from} 
+          onChange={(e) => setFrom(e.target.value)} 
+          className="p-2 border border-gray-300 rounded-md"
+        >
           <option value="">Nereden</option>
           {locations.map((location) => (
-            <option key={location.id} value={location.id}>{location.name}</option>
+            <option key={location.id} value={location.id}>
+              {location.name}
+            </option>
           ))}
         </select>
 
-        <select value={to} onChange={(e) => setTo(e.target.value)} className="p-2 border border-gray-300 rounded-md">
+        <select 
+          value={to} 
+          onChange={(e) => setTo(e.target.value)} 
+          className="p-2 border border-gray-300 rounded-md"
+        >
           <option value="">Nereye</option>
           {destinations.map((destination) => (
-            <option key={destination.id} value={destination.id}>{destination.name}</option>
+            <option key={destination.id} value={destination.id}>
+              {destination.name}
+            </option>
           ))}
         </select>
 

@@ -12,7 +12,8 @@ const useProfile = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('api/Users/profile', {
+      const userId = JSON.parse(localStorage.getItem('user')).id;
+      const response = await axios.get(`/api/Users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProfile(response.data);
@@ -29,7 +30,7 @@ const useProfile = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(`api/Users/${updatedData.Id}`, updatedData, {
+      const response = await axios.put('/api/Users/UpdateUser', updatedData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProfile(response.data);
@@ -51,7 +52,6 @@ const useProfile = () => {
     profile,
     loading,
     error,
-    fetchProfile,
     updateProfile
   };
 };

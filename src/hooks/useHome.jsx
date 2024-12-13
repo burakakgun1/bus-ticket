@@ -3,22 +3,27 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const useHome = () => {
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
-  const [date, setDate] = useState('');
-  const [locations, setLocations] = useState([]); 
-  const [destinations, setDestinations] = useState([]); 
-  const [loading, setLoading] = useState(false); 
-  const [error, setError] = useState(null);
+  const [from, setFrom] = useState('');   // Nereden
+  const [to, setTo] = useState('');       // Nereye
+  const [date, setDate] = useState('');   // Tarih
+  const [locations, setLocations] = useState([]);  // Şehirler
+  const [destinations, setDestinations] = useState([]);  // Varış şehirleri
+  const [trips, setTrips] = useState([]);  // Tüm seferler
+  const [loading, setLoading] = useState(false);  // Yükleniyor
+  const [error, setError] = useState(null);  // Hata
   const navigate = useNavigate();
+  
+  const baseURL = 'https://localhost:44378';
 
   useEffect(() => {
     const fetchLocations = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('/api/Trips');
-        const uniqueCities = [...new Set(response.data.map(trip => trip.departureCity))];
+        const response = await axios.get(`${baseURL}/api/Trips`);
+        // Departure şehirlerini elde et
+        const uniqueCities = [...new Set(response.data.map(trip => trip.departure_city))];
         setLocations(uniqueCities.map((city, index) => ({ id: index + 1, name: city })));
+        setTrips(response.data);  // Tüm trips verisini al
       } catch (error) {
         setError('Şehirler yüklenirken bir hata oluştu');
       } finally {
@@ -35,11 +40,10 @@ const useHome = () => {
 
       setLoading(true);
       try {
-        const response = await axios.get('/api/Trips');
         const uniqueDestinations = [...new Set(
-          response.data
-            .filter(trip => trip.departureCity === from)
-            .map(trip => trip.arrivalCity)
+          trips
+            .filter(trip => trip.departure_city === locations.find(l => l.id === parseInt(from)).name)
+            .map(trip => trip.arrival_city)
         )];
         setDestinations(uniqueDestinations.map((city, index) => ({ id: index + 1, name: city })));
       } catch (error) {
@@ -50,7 +54,7 @@ const useHome = () => {
     };
 
     fetchDestinations();
-  }, [from]);
+  }, [from, locations, trips]);  // trips de bağlı olacak
 
   const handleSearch = () => {
     if (!from || !to || !date) {
@@ -58,11 +62,24 @@ const useHome = () => {
       return;
     }
 
-    navigate('/tickets', { 
+    // Seçilen `from` ve `to` şehirlerine göre tripId'yi filtrele
+    const selectedTrip = trips.find(
+      trip => 
+        trip.departure_city === locations.find(l => l.id === parseInt(from)).name &&
+        trip.arrival_city === destinations.find(d => d.id === parseInt(to)).name
+    );
+    
+    if (!selectedTrip) {
+      setError('Bu güzergah için sefer bulunamadı');
+      return;
+    }
+
+    navigate('/buses', { 
       state: { 
-        from: locations.find(l => l.id === parseInt(from)).name, 
-        to: destinations.find(d => d.id === parseInt(to)).name, 
-        date: date.toLocaleDateString('tr-TR') 
+        tripId: selectedTrip.id,  
+        from: selectedTrip.departure_city, 
+        to: selectedTrip.arrival_city, 
+        date: date.toLocaleDateString('tr-TR')
       } 
     });
   };
@@ -73,6 +90,7 @@ const useHome = () => {
     date,
     locations,
     destinations,
+    trips,  
     loading,
     error,
     setFrom,

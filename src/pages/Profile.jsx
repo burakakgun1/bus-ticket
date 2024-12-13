@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaTimes, FaUser, FaEnvelope, FaPhone, FaEdit, FaTicketAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaTimes, FaUser, FaEnvelope, FaPhone, FaEdit } from 'react-icons/fa';
 import useProfile from '../hooks/useProfile';
 
 const Profile = () => {
@@ -16,7 +16,8 @@ const Profile = () => {
         firstName: profile.firstName,
         lastName: profile.lastName,
         email: profile.email,
-        phoneNumber: profile.phoneNumber
+        phoneNumber: profile.phoneNumber,
+        tc: profile.tc
       });
       setEditMode(true);
     }
@@ -71,8 +72,7 @@ const Profile = () => {
                 <ProfileInfoCard icon={<FaUser />} label="Soyad" value={profile.lastName} />
                 <ProfileInfoCard icon={<FaEnvelope />} label="E-posta" value={profile.email} />
                 <ProfileInfoCard icon={<FaPhone />} label="Telefon" value={profile.phoneNumber} />
-                <ProfileInfoCard icon={<FaTicketAlt />} label="Toplam Bilet" value="5" />
-                <ProfileInfoCard icon={<FaMapMarkerAlt />} label="Son Seyahat" value="İstanbul - Ankara" />
+                <ProfileInfoCard icon={<FaUser />} label="TC kimlik no" value={profile.tc} />
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">

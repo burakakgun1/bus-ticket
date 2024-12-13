@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const useTicket = (from, to, date) => {
+const useBuses = (from, to, date) => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -64,4 +64,4 @@ const useTicket = (from, to, date) => {
   return { tickets, loading, error };
 };
 
-export default useTicket;
+export default useBuses;

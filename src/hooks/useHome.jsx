@@ -3,29 +3,41 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const useHome = () => {
-  const [from, setFrom] = useState('');   // Nereden
-  const [to, setTo] = useState('');       // Nereye
-  const [date, setDate] = useState('');   // Tarih
-  const [locations, setLocations] = useState([]);  // Şehirler
-  const [destinations, setDestinations] = useState([]);  // Varış şehirleri
-  const [trips, setTrips] = useState([]);  // Tüm seferler
-  const [loading, setLoading] = useState(false);  // Yükleniyor
-  const [error, setError] = useState(null);  // Hata
+  const [from, setFrom] = useState(''); // Nereden
+  const [to, setTo] = useState(''); // Nereye
+  const [date, setDate] = useState(''); // Tarih
+  const [locations, setLocations] = useState([]); // Şehirler
+  const [destinations, setDestinations] = useState([]); // Varış şehirleri
+  const [trips, setTrips] = useState([]); // Seferler
+  const [loading, setLoading] = useState(false); // Yükleniyor
+  const [error, setError] = useState(null); // Hata
   const navigate = useNavigate();
-  
-  const baseURL = 'https://localhost:44378';
 
+  const baseURL = 'https://localhost:44378'; // API Base URL
+
+  // Lokasyonları (şehirleri) yükleme
   useEffect(() => {
     const fetchLocations = async () => {
       setLoading(true);
       try {
         const response = await axios.get(`${baseURL}/api/Trips`);
-        // Departure şehirlerini elde et
-        const uniqueCities = [...new Set(response.data.map(trip => trip.departure_city))];
-        setLocations(uniqueCities.map((city, index) => ({ id: index + 1, name: city })));
-        setTrips(response.data);  // Tüm trips verisini al
+        
+        // Benzersiz kalkış şehirlerini al
+        const uniqueDepartureCities = [...new Set(response.data.map(trip => trip.departure_city))];
+        
+        // Lokasyonları ID ile oluştur
+        setLocations(
+          uniqueDepartureCities.map((city, index) => ({
+            id: index + 1, 
+            name: city
+          }))
+        );
+
+        // Tüm seferleri kaydet
+        setTrips(response.data);
       } catch (error) {
         setError('Şehirler yüklenirken bir hata oluştu');
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -34,54 +46,93 @@ const useHome = () => {
     fetchLocations();
   }, []);
 
+  // Varış şehirlerini güncelleme
   useEffect(() => {
     const fetchDestinations = async () => {
-      if (!from) return;
-
-      setLoading(true);
-      try {
-        const uniqueDestinations = [...new Set(
-          trips
-            .filter(trip => trip.departure_city === locations.find(l => l.id === parseInt(from)).name)
-            .map(trip => trip.arrival_city)
-        )];
-        setDestinations(uniqueDestinations.map((city, index) => ({ id: index + 1, name: city })));
-      } catch (error) {
-        setError('Varış şehirleri yüklenirken bir hata oluştu');
-      } finally {
-        setLoading(false);
+      if (!from) {
+        setDestinations([]);
+        return;
       }
+
+      // Seçilen kalkış şehrinin adını bul
+      const selectedDepartureCity = locations.find(l => l.id === parseInt(from))?.name;
+
+      // Seçilen kalkış şehrine göre varış şehirlerini filtrele
+      const uniqueDestinations = [
+        ...new Set(
+          trips
+            .filter(trip => trip.departure_city === selectedDepartureCity)
+            .map(trip => trip.arrival_city)
+        )
+      ];
+
+      // Varış şehirlerini ID ile oluştur
+      setDestinations(
+        uniqueDestinations.map((city, index) => ({
+          id: index + 1, 
+          name: city
+        }))
+      );
     };
 
     fetchDestinations();
-  }, [from, locations, trips]);  // trips de bağlı olacak
+  }, [from, locations, trips]);
 
-  const handleSearch = () => {
+  // Arama işlemi
+  const handleSearch = async () => {
+    // Tüm alanların dolu olup olmadığını kontrol et
     if (!from || !to || !date) {
       setError('Lütfen tüm alanları doldurunuz');
       return;
     }
 
-    // Seçilen `from` ve `to` şehirlerine göre tripId'yi filtrele
+    // Seçilen kalkış ve varış şehirlerinin adlarını bul
+    const selectedDepartureCity = locations.find(l => l.id === parseInt(from))?.name;
+    const selectedArrivalCity = destinations.find(d => d.id === parseInt(to))?.name;
+
+    // Seçilen kriterlere uyan seferi bul
     const selectedTrip = trips.find(
       trip => 
-        trip.departure_city === locations.find(l => l.id === parseInt(from)).name &&
-        trip.arrival_city === destinations.find(d => d.id === parseInt(to)).name
+        trip.departure_city === selectedDepartureCity && 
+        trip.arrival_city === selectedArrivalCity
     );
-    
+
+    // Sefer bulunamazsa hata ver
     if (!selectedTrip) {
       setError('Bu güzergah için sefer bulunamadı');
       return;
     }
 
-    navigate('/buses', { 
-      state: { 
-        tripId: selectedTrip.id,  
-        from: selectedTrip.departure_city, 
-        to: selectedTrip.arrival_city, 
-        date: date.toLocaleDateString('tr-TR')
-      } 
-    });
+    try {
+      setLoading(true);
+
+      // Seçilen seferin detaylarını al
+      const tripResponse = await axios.get(`${baseURL}/api/Trips/${selectedTrip.trip_id}`);
+      const buses = tripResponse.data.buses;
+
+      // Otobüs bulunamazsa hata ver
+      // if (!buses || buses.length === 0) {
+      //   setError('Bu sefer için otobüs bulunamadı');
+      //   return;
+      // }
+
+      // Otobüs sayfasına yönlendir
+      navigate('/buses', {
+        state: {
+          tripId: selectedTrip.trip_id,
+          from: selectedDepartureCity,
+          to: selectedArrivalCity,
+          date: date.toLocaleDateString('tr-TR'),
+          buses: buses,
+        },
+      });
+
+    } catch (err) {
+      setError('Otobüs bilgileri alınırken bir hata oluştu');
+      console.error('Error fetching buses:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {
@@ -90,7 +141,6 @@ const useHome = () => {
     date,
     locations,
     destinations,
-    trips,  
     loading,
     error,
     setFrom,

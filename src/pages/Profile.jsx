@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTimes, FaUser, FaEnvelope, FaPhone, FaEdit } from 'react-icons/fa';
 import useProfile from '../hooks/useProfile';
 
@@ -12,12 +12,11 @@ const Profile = () => {
       setEditMode(false);
     } else {
       setFormData({
-        Id: profile.Id,
-        firstName: profile.firstName,
-        lastName: profile.lastName,
+        name: profile.name,
+        surname: profile.surname,
         email: profile.email,
-        phoneNumber: profile.phoneNumber,
-        tc: profile.tc
+        phone_number: profile.phone_number,
+        tc: profile.tc,
       });
       setEditMode(true);
     }
@@ -30,13 +29,13 @@ const Profile = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    updateProfile(formData);
+    updateProfile(formData); 
     setEditMode(false);
   };
 
   if (loading) return <div className="flex justify-center items-center h-screen">Yükleniyor...</div>;
   if (error) return <div className="text-red-500 text-center">{error}</div>;
-  if (!profile) return null;
+  if (!profile) return <div>Kullanıcı bilgileri bulunamadı.</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-orange-200 py-12 px-4">
@@ -52,7 +51,7 @@ const Profile = () => {
             </div>
             <div>
               <h2 className="text-3xl font-bold text-white">
-                {profile.firstName} {profile.lastName}
+                {profile.name} {profile.surname}
               </h2>
               <p className="text-yellow-100">{profile.email}</p>
             </div>
@@ -68,24 +67,24 @@ const Profile = () => {
           <div className="p-8">
             {!editMode ? (
               <div className="grid md:grid-cols-2 gap-6">
-                <ProfileInfoCard icon={<FaUser />} label="Ad" value={profile.firstName} />
-                <ProfileInfoCard icon={<FaUser />} label="Soyad" value={profile.lastName} />
+                <ProfileInfoCard icon={<FaUser />} label="Ad" value={profile.name} />
+                <ProfileInfoCard icon={<FaUser />} label="Soyad" value={profile.surname} />
                 <ProfileInfoCard icon={<FaEnvelope />} label="E-posta" value={profile.email} />
-                <ProfileInfoCard icon={<FaPhone />} label="Telefon" value={profile.phoneNumber} />
-                <ProfileInfoCard icon={<FaUser />} label="TC kimlik no" value={profile.tc} />
+                <ProfileInfoCard icon={<FaPhone />} label="Telefon" value={profile.phone_number} />
+                <ProfileInfoCard icon={<FaUser />} label="TC Kimlik No" value={profile.tc} />
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
                 <EditInput 
                   label="Ad" 
-                  name="firstName" 
-                  value={formData.firstName} 
+                  name="name" 
+                  value={formData.name} 
                   onChange={handleChange}
                 />
                 <EditInput 
                   label="Soyad" 
-                  name="lastName" 
-                  value={formData.lastName} 
+                  name="surname" 
+                  value={formData.surname} 
                   onChange={handleChange}
                 />
                 <EditInput 
@@ -96,8 +95,8 @@ const Profile = () => {
                 />
                 <EditInput 
                   label="Telefon" 
-                  name="phoneNumber" 
-                  value={formData.phoneNumber} 
+                  name="phone_number" 
+                  value={formData.phone_number} 
                   onChange={handleChange}
                 />
                 <div className="md:col-span-2">

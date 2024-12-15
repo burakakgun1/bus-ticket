@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import useRegister from '../hooks/useRegister';
 import useLogin from '../hooks/useLogin';
+import axios from 'axios';
 
 const PasswordInput = ({ name, value, onChange, placeholder, showPassword, toggleVisibility }) => (
   <div className="relative">
@@ -49,19 +50,32 @@ const LoginRegisterModal = ({ type, onClose }) => {
   });
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    try {
-      if (storedUser && token) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        setIsAuthenticated(true);
-      }
-    } catch (error) {
-      console.error('Error parsing user from localStorage:', error);
-      localStorage.removeItem('user');
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      fetchUserProfile();
     }
   }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) return;
+
+      const response = await axios.get('https://localhost:44378/api/Users', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      
+      setUser(response.data);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Kullanıcı bilgileri yüklenirken hata:', error);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      setIsAuthenticated(false);
+    }
+  };
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -112,8 +126,7 @@ const LoginRegisterModal = ({ type, onClose }) => {
     try {
       if (type === 'signin') {
         const response = await login(formData.email, formData.password);
-        setUser(response.user);
-        setIsAuthenticated(true);
+        await fetchUserProfile();
       } else {
         if (formData.password !== formData.confirmPassword) return;
         await register(

@@ -8,32 +8,38 @@ const useProfile = () => {
   const [error, setError] = useState(null);
   const notify = useNotification();
 
-  const fetchProfile = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const userId = JSON.parse(localStorage.getItem('user')).id;
-      const response = await axios.get(`/api/Users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setProfile(response.data);
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Profil yüklenemedi.';
-      setError(errorMessage);
-      notify.error(errorMessage);
-    } finally {
-      setLoading(false);
+  // Kullanıcı profilini almak için
+  const fetchProfile = () => {
+    const user = JSON.parse(localStorage.getItem('user')); 
+    if (user) {
+      setProfile(user); 
+    } else {
+      setError('Kullanıcı bulunamadı.');
+      notify.error('Kullanıcı bulunamadı.');
     }
   };
 
+  // Kullanıcı profilini güncellemek için
   const updateProfile = async (updatedData) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('user')); // Kullanıcı bilgilerini al
+      if (!user || !user.id) {
+        throw new Error('Kullanıcı bilgileri eksik.');
+      }
+
+      const token = localStorage.getItem('accessToken'); // Token'ı al
+
+      // PUT isteğini gönder
       const response = await axios.put('/api/Users/UpdateUser', updatedData, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { 
+          Authorization: `Bearer ${token}`, 
+          'Content-Type': 'application/json' 
+        },
       });
-      setProfile(response.data);
+
+      setProfile(response.data);  // Güncellenen kullanıcıyı kaydet
+      localStorage.setItem('user', JSON.stringify(response.data));  // LocalStorage'da güncelle
       notify.success('Profil güncellendi.');
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Güncelleme başarısız.';
@@ -45,7 +51,7 @@ const useProfile = () => {
   };
 
   useEffect(() => {
-    fetchProfile();
+    fetchProfile(); 
   }, []);
 
   return {

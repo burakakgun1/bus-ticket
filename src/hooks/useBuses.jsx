@@ -1,58 +1,53 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-//a
-const useBuses = (from, to, date) => {
-  const [tickets, setTickets] = useState([]);
+
+const useBuses = (tripId) => {
+  const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const baseURL = 'https://localhost:44378';
 
   useEffect(() => {
-    const fetchTickets = async () => {
-      if (!from || !to || !date) return;
+    const fetchBuses = async () => {
+      if (!tripId) return;
 
       setLoading(true);
       setError(null);
 
       try {
-        const formattedDate = new Date(date).toISOString().split('T')[0];
+        // First, fetch all buses
+        const busesResponse = await axios.get(`${baseURL}/api/Buses`);
+        const allBuses = busesResponse.data;
 
-        const { data: trips } = await axios.get(`${baseURL}/api/Trips`, {
-          params: { departure_city: from, arrival_city: to, date: formattedDate },
-        });
+        // Then, fetch the specific trip details
+        const tripResponse = await axios.get(`${baseURL}/api/Trips/${tripId}`);
+        const tripDetails = tripResponse.data;
 
-        if (trips.length === 0) {
-          setTickets([]);
-          return;
-        }
+        // Filter buses that match the trip's bus_id
+        const filteredBuses = allBuses.filter(bus => bus.trip_id === tripId);
 
-        const { data: buses } = await axios.get(`${baseURL}/api/Buses`);
+        // Enrich buses with trip details
+        const enrichedBuses = filteredBuses.map(bus => ({
+          ...bus,
+          departure_city: tripDetails.departure_city,
+          arrival_city: tripDetails.arrival_city,
+          price: tripDetails.price,
+          departure_time: tripDetails.departure_time
+        }));
 
-        const enrichedTickets = ticketResponses.flatMap(({ data: trips }, index) =>
-          tickets.map((ticket) => {
-            const bus = buses.find((bus) => bus.bus_id === trips.bus_id);
-            return {
-              ...ticket,
-              trip: trips[index],
-              bus_company: bus?.company || 'Bilinmeyen Firma',
-              plate_number: bus?.plate_number || 'Bilinmeyen Plaka',
-            };
-          })
-        );
-
-        setTickets(enrichedTickets);
+        setBuses(enrichedBuses);
       } catch (err) {
-        setError('Sefer bilgileri alınırken bir hata oluştu.');
+        setError('Otobüs bilgileri alınırken bir hata oluştu.');
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTickets();
-  }, [from, to, date]);
+    fetchBuses();
+  }, [tripId]);
 
-  return { tickets, loading, error };
+  return { buses, loading, error };
 };
 
 export default useBuses;

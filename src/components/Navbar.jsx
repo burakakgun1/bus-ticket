@@ -1,20 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import LoginRegisterModal from "../Modals/LoginRegisterModal";
+import useLogin from "../hooks/useLogin";
 
 const Navbar = () => {
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState("");
-
+  const [modalType, setModalType] = useState("signin");
+  const [user, setUser] = useState(null);
   const location = useLocation();
+  const { logout } = useLogin();
 
-  const handleModalOpen = (type) => {
+  const isAuthenticated = Boolean(localStorage.getItem("accessToken"));
+
+  useEffect(() => {
+    // Retrieve user data from localStorage when authenticated
+    const userData = JSON.parse(localStorage.getItem('user'));
+    if (userData) {
+      setUser(userData);
+    }
+
+    return () => {
+      setUser(null); // Reset user data on component unmount
+    };
+  }, [isAuthenticated]);
+
+  const openModal = (type) => {
     setModalType(type);
     setShowModal(true);
   };
 
-  const handleModalClose = () => {
+  const closeModal = () => {
     setShowModal(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setUser(null); // Clear user data from state
+    window.location.reload();
   };
 
   return (
@@ -29,9 +51,7 @@ const Navbar = () => {
             <li>
               <Link
                 to="/"
-                className={`text-dark hover:text-gray-300 ${
-                  location.pathname === "/" ? "bg-gray-200" : ""
-                } p-2 rounded`}
+                className={`text-dark hover:text-gray-300 ${location.pathname === "/" ? "bg-gray-200" : ""} p-2 rounded`}
               >
                 HOME
               </Link>
@@ -39,9 +59,7 @@ const Navbar = () => {
             <li>
               <Link
                 to="/profile"
-                className={`text-dark hover:text-gray-300 ${
-                  location.pathname === "/profile" ? "bg-gray-200" : ""
-                } p-2 rounded`}
+                className={`text-dark hover:text-gray-300 ${location.pathname === "/profile" ? "bg-gray-200" : ""} p-2 rounded`}
               >
                 PROFIL
               </Link>
@@ -49,9 +67,7 @@ const Navbar = () => {
             <li>
               <Link
                 to="/about"
-                className={`text-dark hover:text-gray-300 ${
-                  location.pathname === "/about" ? "bg-gray-200" : ""
-                } p-2 rounded`}
+                className={`text-dark hover:text-gray-300 ${location.pathname === "/about" ? "bg-gray-200" : ""} p-2 rounded`}
               >
                 HAKKIMIZDA
               </Link>
@@ -60,24 +76,38 @@ const Navbar = () => {
         </div>
 
         <div className="flex-none flex space-x-4 items-center">
-          <button
-            onClick={() => handleModalOpen("signin")}
-            className="bg-[#E3E3E3] text-dark hover:bg-gray-300 p-2 rounded"
-          >
-            Giriş Yap
-          </button>
-          <button
-            onClick={() => handleModalOpen("register")}
-            className="bg-[#2C2C2C] text-white hover:bg-gray-800 p-2 rounded"
-          >
-            Kayıt ol
-          </button>
+          {isAuthenticated ? (
+            <>
+              <span className="text-gray-700">
+                {user?.name} {user?.surname} {/* Display full name */}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="bg-[#E3E3E3] text-dark hover:bg-gray-300 p-2 rounded"
+              >
+                Çıkış Yap
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => openModal("signin")}
+                className="bg-[#E3E3E3] text-dark hover:bg-gray-300 p-2 rounded"
+              >
+                Giriş Yap
+              </button>
+              <button
+                onClick={() => openModal("register")}
+                className="bg-[#2C2C2C] text-white hover:bg-gray-800 p-2 rounded"
+              >
+                Kayıt ol
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {showModal && (
-        <LoginRegisterModal type={modalType} onClose={handleModalClose} />
-      )}
+      {showModal && <LoginRegisterModal type={modalType} onClose={closeModal} />}
     </nav>
   );
 };

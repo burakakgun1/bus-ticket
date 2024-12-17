@@ -13,14 +13,13 @@ const Navbar = () => {
   const isAuthenticated = Boolean(localStorage.getItem("accessToken"));
 
   useEffect(() => {
-    // Retrieve user data from localStorage when authenticated
     const userData = JSON.parse(localStorage.getItem('user'));
     if (userData) {
       setUser(userData);
     }
 
     return () => {
-      setUser(null); // Reset user data on component unmount
+      setUser(null);
     };
   }, [isAuthenticated]);
 
@@ -35,7 +34,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     logout();
-    setUser(null); // Clear user data from state
+    setUser(null); 
     window.location.reload();
   };
 
@@ -43,7 +42,7 @@ const Navbar = () => {
     <nav className="bg-white p-5 shadow-md">
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex-none">
-          <div className="text-dark text-lg font-bold">Bus Ticketing</div>
+          <div className="text-dark text-lg font-bold">EBilet</div>
         </div>
 
         <div className="flex-grow flex justify-center">
@@ -79,7 +78,7 @@ const Navbar = () => {
           {isAuthenticated ? (
             <>
               <span className="text-gray-700">
-                {user?.name} {user?.surname} {/* Display full name */}
+                {user?.name} {user?.surname} 
               </span>
               <button
                 onClick={handleLogout}

@@ -15,18 +15,14 @@ const useBuses = (tripId) => {
       setError(null);
 
       try {
-        // First, fetch all buses
         const busesResponse = await axios.get(`${baseURL}/api/Buses`);
         const allBuses = busesResponse.data;
 
-        // Then, fetch the specific trip details
         const tripResponse = await axios.get(`${baseURL}/api/Trips/${tripId}`);
         const tripDetails = tripResponse.data;
 
-        // Filter buses that match the trip's bus_id
         const filteredBuses = allBuses.filter(bus => bus.trip_id === tripId);
 
-        // Enrich buses with trip details
         const enrichedBuses = filteredBuses.map(bus => ({
           ...bus,
           departure_city: tripDetails.departure_city,

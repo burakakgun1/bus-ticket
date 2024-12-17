@@ -53,7 +53,6 @@ const Profile = () => {
               <h2 className="text-3xl font-bold text-white">
                 {profile.name} {profile.surname}
               </h2>
-              <p className="text-yellow-100">{profile.email}</p>
             </div>
             <button 
               onClick={handleEditToggle} 

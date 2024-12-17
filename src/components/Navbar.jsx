@@ -55,14 +55,16 @@ const Navbar = () => {
                 HOME
               </Link>
             </li>
-            <li>
-              <Link
-                to="/profile"
-                className={`text-dark hover:text-gray-300 ${location.pathname === "/profile" ? "bg-gray-200" : ""} p-2 rounded`}
-              >
-                PROFIL
-              </Link>
-            </li>
+            {isAuthenticated && (
+              <li>
+                <Link
+                  to="/profile"
+                  className={`text-dark hover:text-gray-300 ${location.pathname === "/profile" ? "bg-gray-200" : ""} p-2 rounded`}
+                >
+                  PROFİL
+                </Link>
+              </li>
+            )}
             <li>
               <Link
                 to="/about"
@@ -71,6 +73,16 @@ const Navbar = () => {
                 HAKKIMIZDA
               </Link>
             </li>
+            {isAuthenticated && (
+              <li>
+                <Link
+                  to="/mytickets"
+                  className={`text-dark hover:text-gray-300 ${location.pathname === "/mytickets" ? "bg-gray-200" : ""} p-2 rounded`}
+                >
+                  BİLETLERİM
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
 

@@ -37,7 +37,9 @@ const LoginRegisterModal = ({ type, onClose }) => {
     email: '',
     password: '',
     phone_number: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    gender: '',
+    identity_: ''
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -134,7 +136,9 @@ const LoginRegisterModal = ({ type, onClose }) => {
           formData.surname, 
           formData.email, 
           formData.password, 
-          formData.phone_number
+          formData.phone_number,
+          formData.gender,
+          formData.identity_
         );
       }
       onClose();
@@ -202,6 +206,30 @@ const LoginRegisterModal = ({ type, onClose }) => {
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded mt-1"
                   placeholder="Soy isminizi giriniz"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700">Gender:</label>
+                <input
+                  type="text"
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded mt-1"
+                  placeholder="gender giriniz"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700">identity_:</label>
+                <input
+                  type="text"
+                  name="identity_"
+                  value={formData.identity_}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded mt-1"
+                  placeholder="TC giriniz"
                   required
                 />
               </div>

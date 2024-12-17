@@ -34,10 +34,10 @@ const useLogin = () => {
 
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
-      localStorage.setItem('user', JSON.stringify(response.data.user)); // Store full user info
+      localStorage.setItem('user', JSON.stringify(response.data.user)); 
 
       notify.success('Giriş başarılı!');
-      return response.data; // Return user info as well
+      return response.data; 
     } catch (err) {
       const errorMessage = 
         err.response?.data || 

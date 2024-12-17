@@ -24,11 +24,19 @@ const useProfile = () => {
     setLoading(true);
     try {
       const user = JSON.parse(localStorage.getItem('user')); // Kullanıcı bilgilerini al
-      if (!user || !user.id) {
+      if (!user || !user.user_id) {
         throw new Error('Kullanıcı bilgileri eksik.');
       }
 
       const token = localStorage.getItem('accessToken'); // Token'ı al
+
+      // Veriyi API'ye göndermeden önce eksiksiz olduğundan emin olalım
+      const requiredFields = ['name', 'surname', 'email', 'password', 'phone_number', 'gender', 'identity_'];
+      for (let field of requiredFields) {
+        if (!updatedData[field]) {
+          throw new Error(`${field} bilgisi eksik.`);
+        }
+      }
 
       // PUT isteğini gönder
       const response = await axios.put('/api/Users/UpdateUser', updatedData, {
@@ -42,7 +50,7 @@ const useProfile = () => {
       localStorage.setItem('user', JSON.stringify(response.data));  // LocalStorage'da güncelle
       notify.success('Profil güncellendi.');
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Güncelleme başarısız.';
+      const errorMessage = err.response?.data?.message || err.message || 'Güncelleme başarısız.';
       setError(errorMessage);
       notify.error(errorMessage);
     } finally {

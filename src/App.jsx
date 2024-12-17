@@ -6,10 +6,14 @@ import Profile from './pages/Profile';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Ticket from './pages/Ticket';
-import AdminLayout from './admin/pages/AdminLayout';
 import About from './pages/About';
 import Bus from './pages/Bus';
 import Seats from './pages/Seats';
+import My_Ticket from './pages/My_Ticket';
+import AdminLayout from './admin/pages/AdminLayout';
+import AdminBuses from './admin/pages/AdminBuses';
+import AdminTrips from './admin/pages/AdminTrips';
+import AdminTickets from './admin/pages/AdminTickets';
 
 const App = () => {
   return (
@@ -18,10 +22,14 @@ const App = () => {
     <Route path="/" element={<><Navbar /><Home /></>} />
     <Route path="/profile" element={<><Navbar /><Profile /></>} />
     <Route path='/buses' element={<><Bus /></>} />
-    <Route path="/ticket" element={<><Ticket /></>} />
+    <Route path="/tickets" element={<><Ticket /></>} />
     <Route path="/seats" element={<Seats />} />
     <Route path='/about' element={<><Navbar /><About/></>} />
+    <Route path='/mytickets' element={<><Navbar /><My_Ticket/></>} />
       <Route path="/admin" element={<AdminLayout />}>
+          <Route path="buses" element={<AdminBuses/>} />
+          <Route path="trips" element={<AdminTrips/>} />
+          <Route path="tickets" element={<AdminTickets/>} />
       </Route>
     </Routes>
     <ToastContainer />

@@ -16,7 +16,9 @@ const Profile = () => {
         surname: profile.surname,
         email: profile.email,
         phone_number: profile.phone_number,
-        tc: profile.tc,
+        identity_: profile.identity_,
+        gender: profile.gender,
+        password: profile.password,  // Şifreyi de formda alalım
       });
       setEditMode(true);
     }
@@ -29,13 +31,31 @@ const Profile = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    updateProfile(formData); 
+  
+    // Veriyi doğru sırayla manuel olarak oluşturuyoruz
+    const updatedData = {
+      user_id: profile.user_id,  // İlk sırada user_id
+      name: formData.name,  // Ardından name
+      surname: formData.surname,
+      email: formData.email,
+      password: formData.password,
+      phone_number: formData.phone_number,
+      gender: formData.gender,
+      identity_: formData.identity_,
+    };
+  
+    updateProfile(updatedData); // Güncellenen veriyi API'ye gönder
     setEditMode(false);
   };
+  
+  
 
   if (loading) return <div className="flex justify-center items-center h-screen">Yükleniyor...</div>;
   if (error) return <div className="text-red-500 text-center">{error}</div>;
   if (!profile) return <div>Kullanıcı bilgileri bulunamadı.</div>;
+
+  // Avatar resmi cinsiyete göre dinamik değişecek
+  const avatarUrl = profile.gender === 'Erkek' ? '/avatar-man.jpeg' : '/avatar-woman.jpeg';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-orange-200 py-12 px-4">
@@ -44,7 +64,7 @@ const Profile = () => {
           <div className="bg-gradient-to-r from-yellow-400 to-orange-500 p-6 flex items-center">
             <div className="w-24 h-24 rounded-full bg-white p-1 mr-6">
               <img 
-                src={profile.avatarUrl || '/avatar.jpeg'} 
+                src={avatarUrl} 
                 alt="Profil Resmi" 
                 className="w-full h-full object-cover rounded-full"
               />
@@ -70,7 +90,8 @@ const Profile = () => {
                 <ProfileInfoCard icon={<FaUser />} label="Soyad" value={profile.surname} />
                 <ProfileInfoCard icon={<FaEnvelope />} label="E-posta" value={profile.email} />
                 <ProfileInfoCard icon={<FaPhone />} label="Telefon" value={profile.phone_number} />
-                <ProfileInfoCard icon={<FaUser />} label="TC Kimlik No" value={profile.tc} />
+                <ProfileInfoCard icon={<FaUser />} label="TC Kimlik No" value={profile.identity_} />
+                <ProfileInfoCard icon={<FaUser />} label="Cinsiyet" value={profile.gender} />
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
@@ -96,6 +117,24 @@ const Profile = () => {
                   label="Telefon" 
                   name="phone_number" 
                   value={formData.phone_number} 
+                  onChange={handleChange}
+                />
+                <EditInput 
+                  label="TC Kimlik No" 
+                  name="identity_" 
+                  value={formData.identity_} 
+                  onChange={handleChange}
+                />
+                <EditInput 
+                  label="Cinsiyet" 
+                  name="gender" 
+                  value={formData.gender} 
+                  onChange={handleChange}
+                />
+                <EditInput 
+                  label="Şifre" 
+                  name="password" 
+                  value={formData.password} 
                   onChange={handleChange}
                 />
                 <div className="md:col-span-2">

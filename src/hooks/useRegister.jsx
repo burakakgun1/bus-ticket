@@ -9,7 +9,7 @@ const useRegister = () => {
 
   const baseURL = 'https://localhost:44378';
 
-  const register = async (name, surname, email, password, phone_number) => {
+  const register = async (name, surname, email, password, phone_number, gender, identity_) => {
     setLoading(true);
     setError(null);
     try {
@@ -18,7 +18,9 @@ const useRegister = () => {
         surname,
         email, 
         password,
-        phone_number
+        phone_number,
+        gender,
+        identity_
       });
       notify.success('Kayıt başarılı!');
       return response.data;

@@ -27,8 +27,8 @@ const useBuses = (tripId) => {
           ...bus,
           departure_city: tripDetails.departure_city,
           arrival_city: tripDetails.arrival_city,
-          price: tripDetails.price,
-          departure_time: tripDetails.departure_time
+          price: bus.price,
+          departure_time: bus.departure_time
         }));
 
         setBuses(enrichedBuses);

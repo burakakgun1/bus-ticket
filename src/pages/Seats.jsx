@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TbSteeringWheel } from "react-icons/tb";
 import { MdEventSeat } from "react-icons/md";
+import { FaBus, FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 import useSeats from '../hooks/useSeats';
 
 const Seats = () => {
@@ -10,7 +11,7 @@ const Seats = () => {
   const { bus, from, to, date } = location.state || {};
   
   const { seats, loading, error } = useSeats(bus.bus_id);
-  const [selectedSeat, setSelectedSeat] = useState(null);
+  const [selectedSeats, setSelectedSeats] = useState([]);
 
   const allSeats = Array.from({ length: 40 }, (_, index) => {
     const matchingSeat = seats.find(seat => seat.seat_number === index + 1);
@@ -22,9 +23,64 @@ const Seats = () => {
       seat_id: `empty-${index + 1}`,
       seat_number: index + 1,
       is_reserved: false,
+      gender: null,
       bus_id: bus.bus_id
     };
   });
+
+  const getSeatClassName = (seat) => {
+    // Temel stil tanımları
+    const baseClasses = 'relative w-12 h-12 flex items-center justify-center rounded-lg shadow-md transition-all duration-300';
+    const iconClasses = 'text-xl';
+    const numberClasses = 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs font-bold';
+
+    // Koltuk durumuna göre özel stil tanımları
+    if (seat.is_reserved) {
+      if (seat.gender === 'Erkek') {
+        return `
+          ${baseClasses} 
+          bg-gradient-to-br from-blue-500 to-blue-700 
+          text-white 
+          border-2 border-blue-600 
+          hover:scale-105 
+          cursor-not-allowed 
+          opacity-90 hover:opacity-100
+        `;
+      } else if (seat.gender === 'Kadın') {
+        return `
+          ${baseClasses} 
+          bg-gradient-to-br from-pink-500 to-rose-600 
+          text-white 
+          border-2 border-pink-600 
+          hover:scale-105 
+          cursor-not-allowed 
+          opacity-90 hover:opacity-100
+        `;
+      }
+    }
+
+    // Seçili koltuk
+    if (selectedSeats.some(s => s.seat_id === seat.seat_id)) {
+      return `
+        ${baseClasses} 
+        bg-gradient-to-br from-green-500 to-emerald-600 
+        text-white 
+        border-2 border-green-600 
+        transform scale-105 
+        animate-pulse
+      `;
+    }
+
+    // Boş koltuk
+    return `
+      ${baseClasses} 
+      bg-gradient-to-br from-gray-200 to-gray-300 
+      text-gray-700 
+      border-2 border-gray-300 
+      hover:bg-gradient-to-br hover:from-gray-300 hover:to-gray-400 
+      cursor-pointer
+    `;
+  };
 
   if (loading) {
     return (
@@ -53,17 +109,33 @@ const Seats = () => {
 
   const handleSeatSelect = (seat) => {
     if (!seat.is_reserved) {
-      setSelectedSeat(seat);
-      navigate('/tickets', { 
-        state: { 
-          bus: bus, 
-          seat: seat,
-          from: from,
-          to: to,
-          date: date
-        } 
-      });
+      // Eğer koltuk zaten seçiliyse, seçimden çıkar
+      const isAlreadySelected = selectedSeats.some(s => s.seat_id === seat.seat_id);
+      
+      if (isAlreadySelected) {
+        setSelectedSeats(selectedSeats.filter(s => s.seat_id !== seat.seat_id));
+      } else {
+        // Yoksa seçilenlere ekle
+        setSelectedSeats([...selectedSeats, seat]);
+      }
     }
+  };
+
+  const proceedToTickets = () => {
+    if (selectedSeats.length === 0) {
+      alert('En az bir koltuk seçmeniz gerekiyor.');
+      return;
+    }
+
+    navigate('/tickets', { 
+      state: { 
+        bus: bus, 
+        seats: selectedSeats,
+        from: from,
+        to: to,
+        date: date
+      } 
+    });
   };
 
   const handleBack = () => {
@@ -74,6 +146,32 @@ const Seats = () => {
     <div className="min-h-screen bg-cover bg-center" style={{ backgroundImage: `url('/bus-background.jpeg')` }}>
       <div className="bg-black bg-opacity-60 min-h-screen">
         <div className="container mx-auto py-10 px-5">
+          {/* Bus Details Header */}
+          <div className="bg-white bg-opacity-90 rounded-lg p-4 mb-6 max-w-3xl mx-auto">
+            <div className="grid grid-cols-3 gap-4 items-center">
+              <div className="flex items-center space-x-3">
+                <FaBus className="text-2xl text-blue-600" />
+                <div>
+                  <p className="font-semibold text-gray-800">{bus.company}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3 justify-center">
+                <FaMapMarkerAlt className="text-2xl text-green-600" />
+                <div>
+                  <p className="font-semibold text-gray-800">{from} - {to}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3 justify-end">
+                <FaCalendarAlt className="text-2xl text-red-600" />
+                <div>
+                  <p className="font-semibold text-gray-800">{date}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-between items-center mb-6">
             <button 
               onClick={handleBack} 
@@ -104,18 +202,11 @@ const Seats = () => {
                           key={seat.seat_id}
                           onClick={() => handleSeatSelect(seat)}
                           className={`
-                            relative w-16 h-16 flex items-center justify-center cursor-pointer
-                            ${seat.is_reserved 
-                              ? 'text-white bg-red-500' 
-                              : selectedSeat?.seat_id === seat.seat_id 
-                              ? 'text-white bg-green-500' 
-                              : 'text-gray-700 bg-gray-200 hover:bg-gray-300'
-                            }
-                            rounded-lg shadow-md transition-all duration-300
+                            ${getSeatClassName(seat)}
                           `}
                         >
-                          <MdEventSeat className="text-3xl" />
-                          <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm font-bold">
+                          <MdEventSeat className="text-xl" /> 
+                          <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs font-bold">
                             {seat.seat_number}
                           </span>
                         </div>
@@ -128,18 +219,11 @@ const Seats = () => {
                           key={seat.seat_id}
                           onClick={() => handleSeatSelect(seat)}
                           className={`
-                            relative w-16 h-16 flex items-center justify-center cursor-pointer
-                            ${seat.is_reserved 
-                              ? 'text-white bg-red-500' 
-                              : selectedSeat?.seat_id === seat.seat_id 
-                              ? 'text-white bg-green-500' 
-                              : 'text-gray-700 bg-gray-200 hover:bg-gray-300'
-                            }
-                            rounded-lg shadow-md transition-all duration-300
+                            ${getSeatClassName(seat)}
                           `}
                         >
-                          <MdEventSeat className="text-3xl" />
-                          <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm font-bold">
+                          <MdEventSeat className="text-xl" /> 
+                          <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs font-bold">
                             {seat.seat_number}
                           </span>
                         </div>
@@ -152,18 +236,32 @@ const Seats = () => {
               {/* Bilgilendirme */}
               <div className="mt-6 flex justify-center space-x-4">
                 <div className="flex items-center space-x-2">
-                  <div className="w-5 h-5 bg-gray-200 rounded-lg"></div>
+                  <div className="w-5 h-5 bg-gradient-to-br from-gray-200 to-gray-300 border-2 border-gray-300 rounded-lg"></div>
                   <span className="text-sm">Boş Koltuk</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-5 h-5 bg-red-500 rounded-lg"></div>
-                  <span className="text-sm">Dolu Koltuk</span>
+                  <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-blue-700 border-2 border-blue-600 rounded-lg"></div>
+                  <span className="text-sm">Erkek Yolcu Koltuğu</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-5 h-5 bg-green-500 rounded-lg"></div>
+                  <div className="w-5 h-5 bg-gradient-to-br from-pink-500 to-rose-600 border-2 border-pink-600 rounded-lg"></div>
+                  <span className="text-sm">Kadın Yolcu Koltuğu</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-5 h-5 bg-gradient-to-br from-green-500 to-emerald-600 border-2 border-green-600 rounded-lg"></div>
                   <span className="text-sm">Seçili Koltuk</span>
                 </div>
               </div>
+            </div>
+
+            {/* Devam Butonu */}
+            <div className="mt-6 text-center">
+              <button
+                onClick={proceedToTickets}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded"
+              >
+                Koltukları Onayla ({selectedSeats.length} Koltuk Seçildi)
+              </button>
             </div>
           </div>
         </div>

@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css"; 
 import useHome from '../hooks/useHome';
 import { registerLocale } from "react-datepicker"; 
 import tr from "date-fns/locale/tr"; 
-import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 
 registerLocale('tr', tr);
 
@@ -22,6 +22,14 @@ const Home = () => {
     setDate, 
     handleSearch 
   } = useHome(); 
+
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    // Convert to string in yyyy/MM/dd format
+    setDate(date ? format(date, 'yyyy/MM/dd') : '');
+  };
 
   return (
     <div className="h-screen w-full bg-cover bg-center flex flex-col justify-center items-center" style={{ backgroundImage: "url('/bus-background.jpeg')" }}>
@@ -60,8 +68,8 @@ const Home = () => {
         </select>
 
         <DatePicker
-          selected={date}
-          onChange={(date) => setDate(date)}
+          selected={selectedDate}
+          onChange={handleDateChange}
           className="p-2 border border-gray-300 rounded-md"
           placeholderText="Gün seçiniz"
           dateFormat="yyyy/MM/dd" 

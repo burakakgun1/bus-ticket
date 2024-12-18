@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns'; // Make sure to install date-fns if not already installed
 
 const useHome = () => {
   const [from, setFrom] = useState(''); // Nereden
@@ -85,21 +86,25 @@ const useHome = () => {
       setError('Lütfen tüm alanları doldurunuz');
       return;
     }
-
+  
     // Seçilen kalkış ve varış şehirlerinin adlarını bul
     const selectedDepartureCity = locations.find(l => l.id === parseInt(from))?.name;
     const selectedArrivalCity = destinations.find(d => d.id === parseInt(to))?.name;
-
-    // Seçilen kriterlere uyan seferi bul
+  
+    // Tarihi backend formatına dönüştür (YYYY-MM-DDTHH:MM:SS)
+    const formattedDate = format(new Date(date), "yyyy-dd-MM'T'00:00:00");
+  
+    // Seçilen kriterlere uyan ve tarihe göre filtrelenen seferi bul
     const selectedTrip = trips.find(
       trip => 
         trip.departure_city === selectedDepartureCity && 
-        trip.arrival_city === selectedArrivalCity
+        trip.arrival_city === selectedArrivalCity &&
+        trip.date_ === formattedDate
     );
-
+  
     // Sefer bulunamazsa hata ver
     if (!selectedTrip) {
-      setError('Bu güzergah için sefer bulunamadı');
+      setError('Bu güzergah ve tarih için sefer bulunamadı');
       return;
     }
 
@@ -110,19 +115,13 @@ const useHome = () => {
       const tripResponse = await axios.get(`${baseURL}/api/Trips/${selectedTrip.trip_id}`);
       const buses = tripResponse.data.buses;
 
-      // Otobüs bulunamazsa hata ver
-      // if (!buses || buses.length === 0) {
-      //   setError('Bu sefer için otobüs bulunamadı');
-      //   return;
-      // }
-
       // Otobüs sayfasına yönlendir
       navigate('/buses', {
         state: {
           tripId: selectedTrip.trip_id,
           from: selectedDepartureCity,
           to: selectedArrivalCity,
-          date: date.toLocaleDateString('tr-TR'),
+          date: formattedDate,
           buses: buses,
         },
       });

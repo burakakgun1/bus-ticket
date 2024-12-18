@@ -7,8 +7,8 @@ const useProfile = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const notify = useNotification();
+  const baseURL = 'https://localhost:44378'; 
 
-  // Kullanıcı profilini almak için
   const fetchProfile = () => {
     const user = JSON.parse(localStorage.getItem('user')); 
     if (user) {
@@ -19,18 +19,11 @@ const useProfile = () => {
     }
   };
 
-  // Kullanıcı profilini güncellemek için
   const updateProfile = async (updatedData) => {
     setLoading(true);
     try {
-      const user = JSON.parse(localStorage.getItem('user')); // Kullanıcı bilgilerini al
-      if (!user || !user.user_id) {
-        throw new Error('Kullanıcı bilgileri eksik.');
-      }
+      const token = localStorage.getItem('accessToken');
 
-      const token = localStorage.getItem('accessToken'); // Token'ı al
-
-      // Veriyi API'ye göndermeden önce eksiksiz olduğundan emin olalım
       const requiredFields = ['name', 'surname', 'email', 'password', 'phone_number', 'gender', 'identity_'];
       for (let field of requiredFields) {
         if (!updatedData[field]) {
@@ -38,21 +31,29 @@ const useProfile = () => {
         }
       }
 
-      // PUT isteğini gönder
-      const response = await axios.put('/api/Users/UpdateUser', updatedData, {
+      const response = await axios.put(`${baseURL}/api/Users/UpdateUser`, updatedData, {
         headers: { 
-          Authorization: `Bearer ${token}`, 
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
       });
 
-      setProfile(response.data);  // Güncellenen kullanıcıyı kaydet
-      localStorage.setItem('user', JSON.stringify(response.data));  // LocalStorage'da güncelle
+      const updatedUser = response.data;
+
+      // localStorage'ı güncelle
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      // Profile state'ini güncelle
+      setProfile(updatedUser);  
+      
       notify.success('Profil güncellendi.');
+      
+      return updatedUser;
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Güncelleme başarısız.';
       setError(errorMessage);
       notify.error(errorMessage);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -64,9 +65,11 @@ const useProfile = () => {
 
   return {
     profile,
+    setProfile, // setProfile'ı da dışarı aktarıyoruz
     loading,
     error,
-    updateProfile
+    updateProfile,
+    fetchProfile
   };
 };
 

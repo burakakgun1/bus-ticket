@@ -17,11 +17,7 @@ const Navbar = () => {
     if (userData) {
       setUser(userData);
     }
-
-    return () => {
-      setUser(null);
-    };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, localStorage.getItem('user')]);
 
   const openModal = (type) => {
     setModalType(type);

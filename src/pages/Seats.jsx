@@ -4,6 +4,8 @@ import { TbSteeringWheel } from "react-icons/tb";
 import { MdEventSeat } from "react-icons/md";
 import { FaBus, FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 import useSeats from '../hooks/useSeats';
+import { format } from 'date-fns';
+
 
 const Seats = () => {
   const navigate = useNavigate();
@@ -12,6 +14,8 @@ const Seats = () => {
   
   const { seats, loading, error } = useSeats(bus.bus_id);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const formattedDate = format(new Date(date), "MM.dd.yyyy");
+  
 
   const allSeats = Array.from({ length: 40 }, (_, index) => {
     const matchingSeat = seats.find(seat => seat.seat_number === index + 1);
@@ -29,10 +33,7 @@ const Seats = () => {
   });
 
   const getSeatClassName = (seat) => {
-    // Temel stil tanımları
     const baseClasses = 'relative w-12 h-12 flex items-center justify-center rounded-lg shadow-md transition-all duration-300';
-    const iconClasses = 'text-xl';
-    const numberClasses = 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs font-bold';
 
     // Koltuk durumuna göre özel stil tanımları
     if (seat.is_reserved) {
@@ -166,7 +167,7 @@ const Seats = () => {
               <div className="flex items-center space-x-3 justify-end">
                 <FaCalendarAlt className="text-2xl text-red-600" />
                 <div>
-                  <p className="font-semibold text-gray-800">{date}</p>
+                  <p className="font-semibold text-gray-800">{`${formattedDate}`}</p>
                 </div>
               </div>
             </div>

@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useTicket from '../hooks/useTicket';
+import { format } from 'date-fns';
+
 
 const Ticket = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { bus, seats, from, to, date } = location.state || {};
   const { createTickets, loading, error } = useTicket();
+  const formattedDate = format(new Date(date), "MM.dd.yyyy");
 
   const [passengers, setPassengers] = useState(
     seats.map(seat => ({
@@ -97,7 +100,7 @@ const Ticket = () => {
             <div className="mb-4 p-4 bg-gray-100 rounded">
               <p><strong>Otobüs:</strong> {bus.company}</p>
               <p><strong>Güzergah:</strong> {from} - {to}</p>
-              <p><strong>Tarih:</strong> {date}</p>
+              <p><strong>Tarih:</strong> {`${formattedDate}`}</p>
             </div>
 
             {passengers.map((passenger, index) => (

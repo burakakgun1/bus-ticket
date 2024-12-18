@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaUser, FaEnvelope, FaPhone, FaEdit } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom'; // React Router'dan navigate eklenmeli
 import useProfile from '../hooks/useProfile';
 
 const Profile = () => {
-  const { profile, loading, error, updateProfile } = useProfile();
+  const navigate = useNavigate(); // navigate hook'unu tanımla
+  const { profile, setProfile, loading, error, updateProfile } = useProfile();
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
+
+  useEffect(() => {
+    const storedProfile = JSON.parse(localStorage.getItem('user'));
+    if (storedProfile) {
+      setProfile(storedProfile);
+    }
+  }, [setProfile]);
 
   const handleEditToggle = () => {
     if (editMode) {
@@ -18,7 +27,7 @@ const Profile = () => {
         phone_number: profile.phone_number,
         identity_: profile.identity_,
         gender: profile.gender,
-        password: profile.password,  // Şifreyi de formda alalım
+        password: profile.password,
       });
       setEditMode(true);
     }
@@ -29,13 +38,12 @@ const Profile = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
   
-    // Veriyi doğru sırayla manuel olarak oluşturuyoruz
     const updatedData = {
-      user_id: profile.user_id,  // İlk sırada user_id
-      name: formData.name,  // Ardından name
+      user_id: profile.user_id,
+      name: formData.name,
       surname: formData.surname,
       email: formData.email,
       password: formData.password,
@@ -44,11 +52,16 @@ const Profile = () => {
       identity_: formData.identity_,
     };
   
-    updateProfile(updatedData); // Güncellenen veriyi API'ye gönder
-    setEditMode(false);
+    try {
+      await updateProfile(updatedData);
+      
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+      navigate('/'); 
+    } catch (error) {
+      console.error("Profil güncellenirken hata oluştu:", error);
+    }
   };
-  
-  
 
   if (loading) return <div className="flex justify-center items-center h-screen">Yükleniyor...</div>;
   if (error) return <div className="text-red-500 text-center">{error}</div>;
@@ -133,7 +146,8 @@ const Profile = () => {
                 />
                 <EditInput 
                   label="Şifre" 
-                  name="password" 
+                  name="password"
+                  type="password" 
                   value={formData.password} 
                   onChange={handleChange}
                 />

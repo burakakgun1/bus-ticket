@@ -3,6 +3,7 @@ import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import useRegister from "../hooks/useRegister";
 import useLogin from "../hooks/useLogin";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const PasswordInput = ({
   name,
@@ -46,6 +47,7 @@ const LoginRegisterModal = ({ type, onClose }) => {
   } = useRegister();
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -164,6 +166,11 @@ const LoginRegisterModal = ({ type, onClose }) => {
       if (type === "signin") {
         const response = await login(formData.email, formData.password);
         await fetchUserProfile();
+        
+        // 3. E-posta adresi adminse yönlendir
+        if (response && formData.email === "admin@gmail.com") {
+          navigate("/admin"); // Admin sayfasına yönlendirme
+        }
       } else {
         if (formData.password !== formData.confirmPassword) return;
         await register(

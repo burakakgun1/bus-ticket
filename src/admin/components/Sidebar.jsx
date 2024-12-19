@@ -8,6 +8,11 @@ const Sidebar = () => {
       <nav className="mt-6">
         <ul>
           <li className="py-3">
+            <Link to="/admin/home" className="block hover:bg-gray-700 px-4 py-2 rounded">
+              Ana Sayfa
+            </Link>
+          </li>
+          <li className="py-3">
             <Link to="/admin/buses" className="block hover:bg-gray-700 px-4 py-2 rounded">
               Otobüsler
             </Link>

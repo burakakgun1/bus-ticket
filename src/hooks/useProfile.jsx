@@ -65,7 +65,7 @@ const useProfile = () => {
 
   return {
     profile,
-    setProfile, // setProfile'ı da dışarı aktarıyoruz
+    setProfile, 
     loading,
     error,
     updateProfile,

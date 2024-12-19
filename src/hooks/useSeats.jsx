@@ -25,7 +25,6 @@ const useSeats = (busId) => {
         const ticketsResponse = await axios.get(`${baseURL}/api/Tickets`);
         const seatsWithDetails = await Promise.all(
           busSeatIds.map(async (seatId) => {
-            // Find tickets for this seat
             const seatTickets = ticketsResponse.data
               .filter(ticket => ticket.seat_id === seatId && !ticket.is_cancelled);
 

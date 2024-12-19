@@ -167,9 +167,8 @@ const LoginRegisterModal = ({ type, onClose }) => {
         const response = await login(formData.email, formData.password);
         await fetchUserProfile();
         
-        // 3. E-posta adresi adminse yönlendir
         if (response && formData.email === "admin@gmail.com") {
-          navigate("/admin"); // Admin sayfasına yönlendirme
+          navigate("/admin/home"); 
         }
       } else {
         if (formData.password !== formData.confirmPassword) return;
@@ -291,7 +290,7 @@ const LoginRegisterModal = ({ type, onClose }) => {
                   onChange={(e) => {
                     const value = e.target.value;
                     if (/^\d*$/.test(value) && value.length <= 11) {
-                      handleChange(e); // Form state'i güncelle
+                      handleChange(e); 
                     }
                   }}
                   className="w-full p-2 border border-gray-300 rounded mt-1"
@@ -313,7 +312,7 @@ const LoginRegisterModal = ({ type, onClose }) => {
                   onChange={(e) => {
                     const value = e.target.value;
                     if (/^\d*$/.test(value) && value.length <= 10) {
-                      handleChange(e); // Form state'i güncelle
+                      handleChange(e); 
                     }
                   }}
                   className="w-full p-2 border border-gray-300 rounded mt-1"

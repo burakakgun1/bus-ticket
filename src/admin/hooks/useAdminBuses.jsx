@@ -1,20 +1,23 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import useNotification from '../../components/Notification';
 
 const useAdminBuses = () => {
-  const [buses, setBuses] = useState([]); // Store the buses
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
-  const [editingBus, setEditingBus] = useState(null); // State for editing bus
+  const [buses, setBuses] = useState([]); 
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null);
+  const [editingBus, setEditingBus] = useState(null); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBus, setSelectedBus] = useState(null);
+  const notify = useNotification();
   const [newBus, setNewBus] = useState({
     plate_number: '',
     company: '',
     trip_id: 0,
     price: 0,
     departure_time: 0,
-  }); // State for adding a new bus
+  }); 
 
-  // Fetch buses from the API
   useEffect(() => {
     const fetchBuses = async () => {
       try {
@@ -30,12 +33,10 @@ const useAdminBuses = () => {
     fetchBuses();
   }, []);
 
-  // Handle editing a bus
   const handleEditClick = (bus) => {
     setEditingBus({ ...bus });
   };
 
-  // Handle input change while editing
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditingBus((prev) => ({
@@ -44,7 +45,6 @@ const useAdminBuses = () => {
     }));
   };
 
-  // Save the updated bus data
   const handleSaveUpdate = async (notify) => {
     try {
       const token = localStorage.getItem('accessToken');
@@ -73,10 +73,37 @@ const useAdminBuses = () => {
     }
   };
 
-  // Cancel editing mode
   const handleCancelEdit = () => {
     setEditingBus(null);
   };
+  
+  const handleCancelBus = (bus_id) => {
+    const busToDelete = buses.find(bus => bus.bus_id === bus_id);
+    if (busToDelete) {
+      setSelectedBus(busToDelete); 
+      setIsModalOpen(true); 
+    }
+  };
+  
+
+  const confirmBusCancel = async () => {
+    if (!selectedBus) return;
+  
+    try {
+      await axios.delete("https://localhost:44378/api/Buses/DeleteBus", {
+        data: { bus_id: selectedBus.bus_id }, 
+      });
+  
+      notify.success("Otobüs başarıyla iptal edildi");
+      console.log(selectedBus.bus_id);
+      
+      setIsModalOpen(false); 
+      fetchBuses(); 
+    } catch (err) {
+      notify.error("Otobüs iptal edilirken bir hata oluştu");
+    }
+  };
+  
 
   const handleAddBus = async (notify) => {
     try {
@@ -166,6 +193,10 @@ const useAdminBuses = () => {
     handleCancelEdit,
     handleAddBus,
     handleNewBusInputChange,
+    handleCancelBus,
+    confirmBusCancel,
+    setIsModalOpen,
+    isModalOpen
   };
 };
 

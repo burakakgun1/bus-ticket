@@ -1,18 +1,21 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import useNotification from '../../components/Notification';
 
 const useAdminTrips = () => {
-  const [trips, setTrips] = useState([]); // Seferleri tutacak state
-  const [loading, setLoading] = useState(true); // Yükleniyor durumu
-  const [error, setError] = useState(null); // Hata durumu
-  const [editingTrip, setEditingTrip] = useState(null); // Düzenlenen sefer
+  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [editingTrip, setEditingTrip] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTrip, setSelectedTrip] = useState(null);
+  const notify = useNotification();
   const [newTrip, setNewTrip] = useState({
     departure_city: '',
     arrival_city: '',
     date_: '',
-  }); // Yeni sefer state'i
+  }); 
 
-  // Seferleri API'den çekme
   useEffect(() => {
     const fetchTrips = async () => {
       try {
@@ -28,12 +31,10 @@ const useAdminTrips = () => {
     fetchTrips();
   }, []);
 
-  // Düzenleme modunu başlatma
   const handleEditClick = (trip) => {
     setEditingTrip({ ...trip });
   };
 
-  // Düzenleme sırasında input değişikliği
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditingTrip((prev) => ({
@@ -42,7 +43,6 @@ const useAdminTrips = () => {
     }));
   };
 
-  // Seferi güncelleme
   const handleSaveUpdate = async (notify) => {
     try {
       const token = localStorage.getItem('accessToken');
@@ -112,6 +112,31 @@ const useAdminTrips = () => {
       [name]: value,
     }));
   };
+  
+  const handleCancelTrips = () => {
+    const TripsToDelete = selectedTrip.map((trip) => trip.trip_id);
+    if (TripsToDelete) {
+      setSelectedTrip(TripsToDelete);
+      setIsModalOpen(false);
+    }
+  };
+  const confirmTripsCancel = async () => {
+    if (!selectedTrip) return;
+  
+    try {
+      await axios.delete("https://localhost:44378/api/Trips/DeleteTrip", {
+        data: { trip_id: selectedTrip }, 
+      });
+  
+      notify.success("Seferler basarıyla iptal edildi");
+      console.log(selectedTrip.trip_id);
+      
+      setIsModalOpen(false); 
+      fetchTrips(); 
+    } catch (err) {
+      notify.error("Seferler iptal edilirken bir hata oluştu");
+    }
+  };
 
   return {
     trips,
@@ -125,6 +150,10 @@ const useAdminTrips = () => {
     handleCancelEdit,
     handleAddTrip,
     handleNewTripInputChange,
+    handleCancelTrips,
+    confirmTripsCancel,
+    setIsModalOpen,
+    isModalOpen
   };
 };
 

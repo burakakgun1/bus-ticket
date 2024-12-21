@@ -11,7 +11,6 @@ const MyTickets = () => {
     setIsModalOpen,
     handleTicketCancel,
     confirmTicketCancel,
-    selectedTicket
   } = useMyTickets();
 
   if (loading) {

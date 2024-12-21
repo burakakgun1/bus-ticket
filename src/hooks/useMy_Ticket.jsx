@@ -100,7 +100,6 @@ const useMyTickets = () => {
     setIsModalOpen,
     handleTicketCancel,
     confirmTicketCancel,
-    selectedTicket,
   };
 };
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import useAdminBuses from '../hooks/useAdminBuses';
 import useNotification from '../../components/Notification';
+import ConfirmModal from '../../Modals/ConfirmModal';
 
 const AdminBuses = () => {
   const {
@@ -15,6 +16,10 @@ const AdminBuses = () => {
     handleCancelEdit,
     handleAddBus,
     handleNewBusInputChange,
+    confirmBusCancel,
+    setIsModalOpen,
+    isModalOpen,
+    handleCancelBus
   } = useAdminBuses();
   
   const notify = useNotification();
@@ -177,11 +182,18 @@ const AdminBuses = () => {
                       <td className="py-2 px-4 text-center">{bus.trip_id}</td>
                       <td className="py-2 px-4 text-center">{bus.price} TL</td>
                       <td className="py-2 px-4 text-center">
+                      
                         <button 
                           onClick={() => handleEditClick(bus)}
                           className="bg-blue-500 text-white px-2 py-1 rounded"
                         >
                           Düzenle
+                        </button>
+                        <button 
+                          onClick={() => handleCancelBus(bus.bus_id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded ml-2"
+                        >
+                          Sil
                         </button>
                       </td>
                     </>
@@ -196,6 +208,13 @@ const AdminBuses = () => {
           </tbody>
         </table>
       </div>
+      <ConfirmModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={confirmBusCancel}
+        title="Otobüs Silme Onayı"
+        message="Otobüs silmek istediginizden emin misiniz?"
+      />
     </div>
   );
 };

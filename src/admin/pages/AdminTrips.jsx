@@ -1,6 +1,7 @@
 import React from 'react';
 import useAdminTrips from '../hooks/useAdminTrips';
 import useNotification from '../../components/Notification';
+import ConfirmModal from '../../Modals/ConfirmModal';
 
 const AdminTrips = () => {
   const {
@@ -15,6 +16,10 @@ const AdminTrips = () => {
     handleCancelEdit,
     handleAddTrip,
     handleNewTripInputChange,
+    handleCancelTrips,
+    isModalOpen,
+    setIsModalOpen,
+    confirmTripsCancel
   } = useAdminTrips();
   
   const notify = useNotification();
@@ -158,6 +163,12 @@ const AdminTrips = () => {
                         >
                           Düzenle
                         </button>
+                        <button 
+                          onClick={() => handleCancelTrips(trip.trip_id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded ml-2"
+                        >
+                          Sil
+                        </button>
                       </td>
                     </>
                   )}
@@ -171,6 +182,13 @@ const AdminTrips = () => {
           </tbody>
         </table>
       </div>
+      <ConfirmModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={confirmTripsCancel}
+        title="Sefer Silme Onayı"
+        message="Seferi silmek istediginizden emin misiniz?"
+      />
     </div>
   );
 };

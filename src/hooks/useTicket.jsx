@@ -24,13 +24,13 @@ const useTicket = () => {
       const ticketPromises = tickets.map(ticket => {
         const user = users.find(
           u =>
-            u.name.toLowerCase() === ticket.name.toLowerCase() &&
-            u.surname.toLowerCase() === ticket.surname.toLowerCase() &&
-            u.email.toLowerCase() === ticket.email.toLowerCase()
+            u.name.toLowerCase() === ticket.name.toLowerCase().trim() &&
+            u.surname.toLowerCase() === ticket.surname.toLowerCase().trim() &&
+            u.email.toLowerCase() === ticket.email.toLowerCase().trim()
         );
 
         if (!user) {
-          throw new Error(`${ticket.name} ${ticket.surname} kullanıcısı bulunamadı!`);
+          throw new Error(`${ticket.name} ${ticket.surname} kullanıcısı bulunamadı! Lütfen sisteme kayıt olunuz.`);
         }
 
         const requestBody = {

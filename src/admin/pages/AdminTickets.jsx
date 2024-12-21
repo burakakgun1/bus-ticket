@@ -1,8 +1,9 @@
 import React from 'react';
 import useAdminTickets from '../hooks/useAdminTickets';
+import ConfirmModal from '../../Modals/ConfirmModal';
 
 const AdminTickets = () => {
-  const { tickets, loading, error } = useAdminTickets(); 
+  const { tickets, loading, error, isModalOpen, setIsModalOpen, handleTicketCancel, confirmTicketCancel } = useAdminTickets(); 
 
   if (loading) {
     return <div className="text-center">Yükleniyor...</div>;
@@ -24,6 +25,7 @@ const AdminTickets = () => {
               <th className="py-2 px-4 border-b text-center">Koltuk Numarası</th>
               <th className="py-2 px-4 border-b text-center">Otobüs Şirketi</th>
               <th className="py-2 px-4 border-b text-center">İptal Durumu</th>
+              <th className="py-2 px-4 border-b text-center">İşlem</th>
             </tr>
           </thead>
           <tbody>
@@ -35,6 +37,16 @@ const AdminTickets = () => {
                   <td className="py-2 px-4 text-center">{ticket.seat_number}</td>
                   <td className="py-2 px-4 text-center">{ticket.bus_company}</td>
                   <td className="py-2 px-4 text-center">{ticket.is_cancelled ? 'İptal Edildi' : 'Aktif'}</td>
+                  <td className="py-2 px-4 text-center">
+                    {!ticket.is_cancelled && (
+                      <button
+                        onClick={() => handleTicketCancel(ticket)}
+                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                      >
+                        Bileti İptal Et
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))
             ) : (
@@ -45,6 +57,14 @@ const AdminTickets = () => {
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={confirmTicketCancel}
+        title="Bilet İptal Onayı"
+        message="Bu bileti iptal etmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+      />
     </div>
   );
 };

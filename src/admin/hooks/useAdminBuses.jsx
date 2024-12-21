@@ -78,7 +78,6 @@ const useAdminBuses = () => {
     setEditingBus(null);
   };
 
-  // Handle adding a new bus
   const handleAddBus = async (notify) => {
     try {
       const token = localStorage.getItem('accessToken');
@@ -89,25 +88,59 @@ const useAdminBuses = () => {
         price: parseFloat(newBus.price),
         departure_time: newBus.departure_time,
       };
-
+  
+      // Önce otobüsü oluştur
       await axios.post('https://localhost:44378/api/Buses/CreateBus', newBusData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
       });
-
-      notify.success('Yeni otobüs eklendi');
+  
+      // Tüm otobüsleri getir ve en son eklenen otobüsü bul
+      const busesResponse = await axios.get('https://localhost:44378/api/Buses', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+  
+      // En son eklenen otobüsü bul (plaka ve şirket eşleşmesine göre)
+      const addedBus = busesResponse.data.find(bus => 
+        bus.plate_number === newBusData.plate_number && 
+        bus.company === newBusData.company
+      );
+  
+      if (!addedBus || !addedBus.bus_id) {
+        throw new Error('Yeni eklenen otobüs bulunamadı');
+      }
+  
+      // Koltukları oluştur
+      for (let i = 1; i <= 40; i++) {
+        const seatData = {
+          seat_number: i,
+          is_reserved: false,
+          bus_id: addedBus.bus_id
+        };
+  
+        await axios.post('https://localhost:44378/api/Seats/CreateSeat', seatData, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+      }
+  
+      notify.success('Yeni otobüs ve koltukları başarıyla eklendi');
       setNewBus({
         plate_number: '',
         company: '',
         trip_id: 0,
         price: 0,
         departure_time: 0,
-      }); // Reset form
-      window.location.reload(); // Reload page or refresh data
+      });
+      window.location.reload();
     } catch (error) {
-      console.error('Yeni otobüs eklenirken hata:', error);
+      console.error('Hata:', error);
       notify.error('Yeni otobüs eklenirken bir hata oluştu');
     }
   };

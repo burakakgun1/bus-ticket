@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import useNotification from '../components/Notification';
 import axios from 'axios';
-import useTicket from '../hooks/useTicket'; // Eğer `reserveSeat` işlevini buraya almak istiyorsanız
+import useTicket from '../hooks/useTicket'; 
 
 const Ticket = () => {
   const location = useLocation();
@@ -78,7 +78,7 @@ const Ticket = () => {
       });
 
       notify.success('Biletleriniz oluşturuldu.');
-      navigate('/mytickets');
+      navigate('/');
     }
   };
 

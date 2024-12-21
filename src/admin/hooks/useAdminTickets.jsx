@@ -1,49 +1,86 @@
-// src/hooks/useAdminTickets.jsx
+// useAdminTickets.js
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import useNotification from '../../components/Notification';
 
 const useAdminTickets = () => {
-  const [tickets, setTickets] = useState([]);  // Ticket verilerini tutacak state
-  const [loading, setLoading] = useState(true);  // Yükleniyor durumu
-  const [error, setError] = useState(null);  // Hata durumu
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const notify = useNotification();
+
+  const fetchTickets = async () => {
+    try {
+      const response = await axios.get('https://localhost:44378/api/Tickets');
+      const ticketData = response.data;
+
+      const ticketsWithDetails = await Promise.all(
+        ticketData.map(async (ticket) => {
+          const tripResponse = await axios.get(`https://localhost:44378/api/Trips/${ticket.trip_id}`);
+          const seatResponse = await axios.get(`https://localhost:44378/api/Seats/${ticket.seat_id}`);
+          const busResponse = await axios.get('https://localhost:44378/api/Buses/GetBusById', {
+            params: { id: ticket.bus_id },
+          });
+          const userResponse = await axios.get(`https://localhost:44378/api/Users/${ticket.user_id}`);
+
+          return {
+            ...ticket,
+            trip_name: tripResponse.data.departure_city + ' - ' + tripResponse.data.arrival_city,
+            seat_number: seatResponse.data.seat_number,
+            bus_company: busResponse.data.company,
+            user_name: `${userResponse.data.name} ${userResponse.data.surname}`,
+          };
+        })
+      );
+      
+      setTickets(ticketsWithDetails);
+      setLoading(false);
+    } catch (err) {
+      setError('Biletler alınırken bir hata oluştu.');
+      notify.error('Biletler alınırken bir hata oluştu.');
+      setLoading(false);
+    }
+  };
+
+  const handleTicketCancel = async (ticket) => {
+    setSelectedTicket(ticket);
+    setIsModalOpen(true);
+  };
+
+  const confirmTicketCancel = async () => {
+    if (!selectedTicket) return;
+
+    try {
+      await axios.delete('https://localhost:44378/api/Tickets/DeleteTicket', {
+        data: { ticket_id: selectedTicket.ticket_id }
+      });
+
+      await axios.post(`https://localhost:44378/api/Seats/ReleaseSeat?seatId=${selectedTicket.seat_id}`);
+
+      notify.success('Bilet başarıyla iptal edildi');
+      setIsModalOpen(false);
+      fetchTickets();
+    } catch (err) {
+      notify.error('Bilet iptal edilirken bir hata oluştu');
+    }
+  };
 
   useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        const response = await axios.get('https://localhost:44378/api/Tickets');
-        const ticketData = response.data;
-        const ticketsWithDetails = await Promise.all(
-          ticketData.map(async (ticket) => {
-            const tripResponse = await axios.get(`https://localhost:44378/api/Trips/${ticket.trip_id}`);
-            const userResponse = await axios.get(`https://localhost:44378/api/Users/${ticket.user_id}`);
-            const seatResponse = await axios.get(`https://localhost:44378/api/Seats/${ticket.seat_id}`);
-            const busResponse = await axios.get('https://localhost:44378/api/Buses/GetBusById', {
-              params: {
-                id: ticket.bus_id,  
-              },
-            });
+    fetchTickets();
+  }, []);
 
-            return {
-              ...ticket,
-              trip_name: tripResponse.data.departure_city + ' - ' + tripResponse.data.arrival_city,  
-              user_name: userResponse.data.name,  
-              seat_number: seatResponse.data.seat_number,  
-              bus_company: busResponse.data.company,  
-            };
-          })
-        );
-        setTickets(ticketsWithDetails);  // Tüm verilerle birlikte tickets dizisini güncelliyoruz
-        setLoading(false);  // Yükleme tamamlandı
-      } catch (err) {
-        setError('Biletler yüklenemedi');  // Hata durumu
-        setLoading(false);  // Yükleme tamamlandı
-      }
-    };
-
-    fetchTickets();  // API isteğini başlatıyoruz
-  }, []);  // Sadece bir kez çalıştırılması için boş array
-
-  return { tickets, loading, error };  // Verileri döndürüyoruz
+  return {
+    tickets,
+    loading,
+    error,
+    isModalOpen,
+    setIsModalOpen,
+    handleTicketCancel,
+    confirmTicketCancel,
+    selectedTicket
+  };
 };
 
 export default useAdminTickets;

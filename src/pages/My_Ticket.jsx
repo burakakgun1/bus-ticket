@@ -1,8 +1,18 @@
 import React from 'react';
 import useMyTickets from '../hooks/useMy_Ticket';
+import ConfirmModal from '../Modals/ConfirmModal';
 
 const MyTickets = () => {
-  const { tickets, loading, error } = useMyTickets();
+  const {
+    tickets,
+    loading,
+    error,
+    isModalOpen,
+    setIsModalOpen,
+    handleTicketCancel,
+    confirmTicketCancel,
+    selectedTicket
+  } = useMyTickets();
 
   if (loading) {
     return (
@@ -33,11 +43,12 @@ const MyTickets = () => {
           <div className="overflow-x-auto bg-white bg-opacity-90 rounded-lg shadow-lg p-6">
             <table className="min-w-full table-auto border-collapse border border-gray-300">
               <thead>
-                <tr className="bg-orange-400 text-white">  {/* Açık turuncu rengi kullanıldı */}
+                <tr className="bg-orange-400 text-white">
                   <th className="py-2 px-4 border-b text-center">Sefer</th>
                   <th className="py-2 px-4 border-b text-center">Koltuk Numarası</th>
                   <th className="py-2 px-4 border-b text-center">Otobüs Şirketi</th>
                   <th className="py-2 px-4 border-b text-center">İptal Durumu</th>
+                  <th className="py-2 px-4 border-b text-center">İşlem</th>
                 </tr>
               </thead>
               <tbody>
@@ -48,11 +59,21 @@ const MyTickets = () => {
                       <td className="py-2 px-4 text-center">{ticket.seat_number}</td>
                       <td className="py-2 px-4 text-center">{ticket.bus_company}</td>
                       <td className="py-2 px-4 text-center">{ticket.is_cancelled ? 'İptal Edildi' : 'Aktif'}</td>
+                      <td className="py-2 px-4 text-center">
+                        {!ticket.is_cancelled && (
+                          <button
+                            onClick={() => handleTicketCancel(ticket)}
+                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                          >
+                            Bileti İptal Et
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="text-center py-4 text-white">Hiç biletiniz bulunmamaktadır.</td>
+                    <td colSpan="5" className="text-center py-4 text-gray-600">Hiç biletiniz bulunmamaktadır.</td>
                   </tr>
                 )}
               </tbody>
@@ -60,6 +81,14 @@ const MyTickets = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={confirmTicketCancel}
+        title="Bilet İptal Onayı"
+        message="Bu bileti iptal etmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+      />
     </div>
   );
 };

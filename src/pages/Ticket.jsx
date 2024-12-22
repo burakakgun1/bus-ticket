@@ -1,32 +1,34 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
-import useNotification from '../components/Notification';
-import axios from 'axios';
-import useTicket from '../hooks/useTicket'; 
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import useNotification from "../components/Notification";
+import axios from "axios";
+import useTicket from "../hooks/useTicket";
 
 const Ticket = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const notify = useNotification();
-  const { bus, seats, from, to, date, tripId } = location.state || {};
+  const { bus, seats, from, to, date } = location.state || {};
   const { createTickets, loading, error } = useTicket();
-  const formattedDate = format(new Date(date), 'MM.dd.yyyy');
+  const formattedDate = format(new Date(date), "MM.dd.yyyy");
 
   const [seatSelections, setSeatSelections] = useState(
-    seats.map(seat => ({
+    seats.map((seat) => ({
       seatId: seat.seat_id,
       seatNumber: seat.seat_number,
+      gender: seat.gender,
       isSelected: false,
       userInfo: {
-        name: '',
-        surname: '',
-        email: '',
+        name: "",
+        surname: "",
+        email: "",
+        gender: seat.gender,
       },
     }))
   );
 
-  const handleSeatToggle = index => {
+  const handleSeatToggle = (index) => {
     const newSelections = [...seatSelections];
     newSelections[index].isSelected = !newSelections[index].isSelected;
     setSeatSelections(newSelections);
@@ -40,30 +42,33 @@ const Ticket = () => {
 
   const reserveSeat = async (seatId) => {
     try {
-      await axios.post(`https://localhost:44378/api/Seats/ReserveSeat?seatId=${seatId}`);
+      await axios.post(
+        `https://localhost:44378/api/Seats/ReserveSeat?seatId=${seatId}`
+      );
     } catch (err) {
       console.error("Koltuk rezerve edilemedi:", err.message);
     }
   };
 
   const handleSubmit = async () => {
-    const selectedSeats = seatSelections.filter(seat => seat.isSelected);
+    const selectedSeats = seatSelections.filter((seat) => seat.isSelected);
 
     if (selectedSeats.length === 0) {
-      notify.warning('Lütfen en az bir koltuk seçin.');
+      notify.warning("Lütfen en az bir koltuk seçin.");
       return;
     }
 
     const isValid = selectedSeats.every(
-      seat => seat.userInfo.name && seat.userInfo.surname && seat.userInfo.email
+      (seat) =>
+        seat.userInfo.name && seat.userInfo.surname && seat.userInfo.email
     );
 
     if (!isValid) {
-      notify.warning('Lütfen tüm yolcu bilgilerini doldurunuz.');
+      notify.warning("Lütfen tüm yolcu bilgilerini doldurunuz.");
       return;
     }
 
-    const tickets = selectedSeats.map(seat => ({
+    const tickets = selectedSeats.map((seat) => ({
       ...seat.userInfo,
       tripId: bus.trip_id,
       busId: bus.bus_id,
@@ -74,11 +79,11 @@ const Ticket = () => {
 
     if (result) {
       selectedSeats.forEach(async (seat) => {
-        await reserveSeat(seat.seatId); 
+        await reserveSeat(seat.seatId);
       });
 
-      notify.success('Biletleriniz oluşturuldu.');
-      navigate('/');
+      notify.success("Biletleriniz oluşturuldu.");
+      navigate("/");
     }
   };
 
@@ -120,7 +125,11 @@ const Ticket = () => {
                   <button
                     key={seat.seatId}
                     onClick={() => handleSeatToggle(index)}
-                    className={`p-2 rounded ${seat.isSelected ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
+                    className={`p-2 rounded ${
+                      seat.isSelected
+                        ? "bg-green-500 text-white"
+                        : "bg-gray-200"
+                    }`}
                   >
                     {seat.seatNumber}
                   </button>
@@ -128,68 +137,95 @@ const Ticket = () => {
               </div>
             </div>
 
-            {seatSelections.filter(seat => seat.isSelected).map((seat, index) => (
-              <div key={seat.seatId} className="mb-6 p-4 border rounded">
-                <h3 className="font-semibold mb-3">
-                  Koltuk {seat.seatNumber} - Yolcu Bilgileri
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Ad
-                    </label>
-                    <input
-                      type="text"
-                      value={seat.userInfo.name}
-                      onChange={e =>
-                        handleUserInfoChange(seatSelections.indexOf(seat), 'name', e.target.value)
-                      }
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      placeholder="Adınızı giriniz"
-                    />
-                  </div>
+            {seatSelections
+              .filter((seat) => seat.isSelected)
+              .map((seat, index) => (
+                <div key={seat.seatId} className="mb-6 p-4 border rounded">
+                  <h3 className="font-semibold mb-3">
+                    Koltuk {seat.seatNumber} - Yolcu Bilgileri
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Ad
+                      </label>
+                      <input
+                        type="text"
+                        value={seat.userInfo.name}
+                        onChange={(e) =>
+                          handleUserInfoChange(
+                            seatSelections.indexOf(seat),
+                            "name",
+                            e.target.value
+                          )
+                        }
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        placeholder="Adınızı giriniz"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Soyad
-                    </label>
-                    <input
-                      type="text"
-                      value={seat.userInfo.surname}
-                      onChange={e =>
-                        handleUserInfoChange(seatSelections.indexOf(seat), 'surname', e.target.value)
-                      }
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      placeholder="Soyadınızı giriniz"
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Soyad
+                      </label>
+                      <input
+                        type="text"
+                        value={seat.userInfo.surname}
+                        onChange={(e) =>
+                          handleUserInfoChange(
+                            seatSelections.indexOf(seat),
+                            "surname",
+                            e.target.value
+                          )
+                        }
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        placeholder="Soyadınızı giriniz"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      value={seat.userInfo.email}
-                      onChange={e =>
-                        handleUserInfoChange(seatSelections.indexOf(seat), 'email', e.target.value)
-                      }
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      placeholder="Email adresinizi giriniz"
-                    />
+                    <div>
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={seat.userInfo.email}
+                        onChange={(e) =>
+                          handleUserInfoChange(
+                            seatSelections.indexOf(seat),
+                            "email",
+                            e.target.value
+                          )
+                        }
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        placeholder="Email adresinizi giriniz"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Cinsiyet
+                      </label>
+                      <input
+                        type="text"
+                        value={
+                          seat.userInfo.gender === "Erkek" ? "Erkek" : "Kadın"
+                        }
+                        readOnly
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 cursor-not-allowed leading-tight focus:outline-none focus:shadow-outline"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            {seatSelections.some(seat => seat.isSelected) && (
+            {seatSelections.some((seat) => seat.isSelected) && (
               <div className="flex justify-center mt-6">
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
                   className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
                 >
-                  {loading ? 'İşleniyor...' : 'Biletleri Oluştur'}
+                  {loading ? "İşleniyor..." : "Biletleri Oluştur"}
                 </button>
               </div>
             )}

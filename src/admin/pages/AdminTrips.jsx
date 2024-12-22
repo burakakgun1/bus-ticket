@@ -87,6 +87,7 @@ const AdminTrips = () => {
         <table className="min-w-full table-auto border-collapse border border-gray-300">
           <thead>
             <tr className="bg-gray-800 text-white">
+              <th className="py-2 px-4 border-b text-center">Sefer ID</th>
               <th className="py-2 px-4 border-b text-center">Kalkış Şehri</th>
               <th className="py-2 px-4 border-b text-center">Varış Şehri</th>
               <th className="py-2 px-4 border-b text-center">Tarih</th>
@@ -145,6 +146,7 @@ const AdminTrips = () => {
                   ) : (
                     // Normal görünüm
                     <>
+                      <td className="py-2 px-4 text-center">{trip.trip_id}</td>
                       <td className="py-2 px-4 text-center">{trip.departure_city}</td>
                       <td className="py-2 px-4 text-center">{trip.arrival_city}</td>
                       <td className="py-2 px-4 text-center">
@@ -152,8 +154,6 @@ const AdminTrips = () => {
                           year: 'numeric',
                           month: '2-digit',
                           day: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit'
                         })}
                       </td>
                       <td className="py-2 px-4 text-center">

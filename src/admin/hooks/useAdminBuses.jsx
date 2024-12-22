@@ -65,8 +65,8 @@ const useAdminBuses = () => {
       });
 
       notify.success('Otobüs bilgileri güncellendi');
-      setEditingBus(null); // Exit editing mode
-      window.location.reload(); // Reload page or refresh data
+      setEditingBus(null);
+      window.location.reload(); 
     } catch (error) {
       console.error('Güncelleme hatası:', error);
       notify.error('Otobüs güncellenirken bir hata oluştu');
@@ -106,6 +106,11 @@ const useAdminBuses = () => {
   
 
   const handleAddBus = async (notify) => {
+
+    if (!newBus.plate_number || !newBus.company || !newBus.trip_id || !newBus.price || !newBus.departure_time) {
+      notify.warning('Lütfen tüm alanları doldurun.');
+      return;
+    }
     try {
       const token = localStorage.getItem('accessToken');
       const newBusData = {
@@ -172,7 +177,6 @@ const useAdminBuses = () => {
     }
   };
 
-  // Handle input change for new bus
   const handleNewBusInputChange = (e) => {
     const { name, value } = e.target;
     setNewBus((prev) => ({

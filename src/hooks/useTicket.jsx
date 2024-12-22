@@ -26,11 +26,12 @@ const useTicket = () => {
           u =>
             u.name.toLowerCase() === ticket.name.toLowerCase().trim() &&
             u.surname.toLowerCase() === ticket.surname.toLowerCase().trim() &&
-            u.email.toLowerCase() === ticket.email.toLowerCase().trim()
+            u.email.toLowerCase() === ticket.email.toLowerCase().trim() &&
+            u.gender === ticket.gender
         );
 
         if (!user) {
-          throw new Error(`${ticket.name} ${ticket.surname} kullanıcısı bulunamadı! Lütfen sisteme kayıt olunuz.`);
+          throw new Error(`${ticket.name} ${ticket.surname} kullanıcısı bulunamadı! Lütfen bilgilerinizi kontrol ediniz. Eğer bilgileriniz sisteme kayıtlı değilse sisteme kayıt olunuz.`);
         }
 
         const requestBody = {

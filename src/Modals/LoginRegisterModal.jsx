@@ -267,7 +267,7 @@ const LoginRegisterModal = ({ type, onClose }) => {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Gender:</label>
+                <label className="block text-gray-700">Cinsiyet:</label>
                 <select
                   name="gender"
                   value={formData.gender}
@@ -282,7 +282,7 @@ const LoginRegisterModal = ({ type, onClose }) => {
               </div>
 
               <div className="mb-4">
-                <label className="block text-gray-700">Identity:</label>
+                <label className="block text-gray-700">TC:</label>
                 <input
                   type="text"
                   name="identity_"

@@ -74,6 +74,7 @@ const Home = () => {
           placeholderText="Gün seçiniz"
           dateFormat="yyyy/MM/dd" 
           locale="tr"
+          minDate={new Date()}
         />
       </div>
 

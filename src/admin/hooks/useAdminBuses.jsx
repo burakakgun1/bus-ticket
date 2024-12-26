@@ -87,22 +87,22 @@ const useAdminBuses = () => {
   
 
   const confirmBusCancel = async () => {
-    if (!selectedBus) return;
-  
-    try {
-      await axios.delete("https://localhost:44378/api/Buses/DeleteBus", {
-        data: { bus_id: selectedBus.bus_id }, 
-      });
-  
-      notify.success("Otobüs başarıyla iptal edildi");
-      console.log(selectedBus.bus_id);
-      
-      setIsModalOpen(false); 
-      fetchBuses(); 
-    } catch (err) {
-      notify.error("Otobüs iptal edilirken bir hata oluştu");
-    }
-  };
+  if (!selectedBus) return;
+
+  try {
+    await axios.delete("https://localhost:44378/api/Buses/DeleteBus", {
+      data: { bus_id: selectedBus.bus_id }, 
+    });
+
+    notify.success("Otobüs başarıyla silindi");
+    setIsModalOpen(false);
+    const response = await axios.get('https://localhost:44378/api/Buses');
+    setBuses(Array.isArray(response.data) ? response.data : []);
+  } catch (err) {
+    notify.error("Otobüs iptal edilirken bir hata oluştu");
+    setIsModalOpen(false);
+  }
+};
   
 
   const handleAddBus = async (notify) => {

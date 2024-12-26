@@ -4,7 +4,7 @@ import { RiTailwindCssFill } from "react-icons/ri";
 
 const About = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-orange-200 py-12 px-6">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-orange-200 py-12 px-6 pt-24">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
         <div className="text-center py-8">
           <h1 className="text-5xl font-extrabold text-yellow-700 mb-4">EBilet</h1>

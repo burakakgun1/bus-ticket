@@ -82,7 +82,7 @@ const Profile = () => {
     profile.gender === "Erkek" ? "/avatar-man.jpeg" : "/avatar-woman.jpeg";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-orange-200 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-orange-200 py-12 px-4 pt-24">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white shadow-2xl rounded-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-yellow-400 to-orange-500 p-6 flex items-center">

@@ -7,17 +7,37 @@ const Navbar = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("signin");
   const [user, setUser] = useState(null);
+  const [isTop, setIsTop] = useState(true);
   const location = useLocation();
   const { logout } = useLogin();
 
   const isAuthenticated = Boolean(localStorage.getItem("accessToken"));
+  const isTransparentPage = location.pathname === "/" || location.pathname === "/mytickets";
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('user'));
     if (userData) {
       setUser(userData);
     }
-  }, [isAuthenticated, localStorage.getItem('user')]);
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsTop(window.scrollY < 10);
+    };
+
+    // Sayfa değiştiğinde scroll pozisyonunu kontrol et
+    if (isTransparentPage) {
+      setIsTop(window.scrollY < 10);
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
+  }, [isTransparentPage, location.pathname]);
+
+  // Sayfa değiştiğinde scroll pozisyonunu sıfırla
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   const openModal = (type) => {
     setModalType(type);
@@ -35,10 +55,14 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white p-5 shadow-md">
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${
+      isTransparentPage && isTop ? 'bg-transparent' : 'bg-white shadow-md'
+    } p-5`}>
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex-none">
-          <div className="text-dark text-lg font-bold">EBilet</div>
+          <div className={`text-lg font-bold ${isTransparentPage && isTop ? 'text-white' : 'text-dark'}`}>
+            <img src="/logo.png" alt="Logo" className="h-10 w-16" />
+          </div>
         </div>
 
         <div className="flex-grow flex justify-center">
@@ -46,7 +70,9 @@ const Navbar = () => {
             <li>
               <Link
                 to="/"
-                className={`text-dark hover:text-gray-300 ${location.pathname === "/" ? "bg-gray-200" : ""} p-2 rounded`}
+                className={`hover:text-gray-300 ${
+                  isTransparentPage && isTop ? 'text-white' : 'text-dark'
+                } ${location.pathname === "/" ? "bg-gray-200 bg-opacity-20" : ""} p-2 rounded`}
               >
                 HOME
               </Link>
@@ -55,7 +81,9 @@ const Navbar = () => {
               <li>
                 <Link
                   to="/profile"
-                  className={`text-dark hover:text-gray-300 ${location.pathname === "/profile" ? "bg-gray-200" : ""} p-2 rounded`}
+                  className={`hover:text-gray-300 ${
+                    isTransparentPage && isTop ? 'text-white' : 'text-dark'
+                  } ${location.pathname === "/profile" ? "bg-gray-200 bg-opacity-20" : ""} p-2 rounded`}
                 >
                   PROFİL
                 </Link>
@@ -64,7 +92,9 @@ const Navbar = () => {
             <li>
               <Link
                 to="/about"
-                className={`text-dark hover:text-gray-300 ${location.pathname === "/about" ? "bg-gray-200" : ""} p-2 rounded`}
+                className={`hover:text-gray-300 ${
+                  isTransparentPage && isTop ? 'text-white' : 'text-dark'
+                } ${location.pathname === "/about" ? "bg-gray-200 bg-opacity-20" : ""} p-2 rounded`}
               >
                 HAKKIMIZDA
               </Link>
@@ -73,7 +103,9 @@ const Navbar = () => {
               <li>
                 <Link
                   to="/mytickets"
-                  className={`text-dark hover:text-gray-300 ${location.pathname === "/mytickets" ? "bg-gray-200" : ""} p-2 rounded`}
+                  className={`hover:text-gray-300 ${
+                    isTransparentPage && isTop ? 'text-white' : 'text-dark'
+                  } ${location.pathname === "/mytickets" ? "bg-gray-200 bg-opacity-20" : ""} p-2 rounded`}
                 >
                   BİLETLERİM
                 </Link>
@@ -85,12 +117,14 @@ const Navbar = () => {
         <div className="flex-none flex space-x-4 items-center">
           {isAuthenticated ? (
             <>
-              <span className="text-gray-700">
+              <span className={isTransparentPage && isTop ? 'text-white' : 'text-gray-700'}>
                 {user?.name} {user?.surname} 
               </span>
               <button
                 onClick={handleLogout}
-                className="bg-[#E3E3E3] text-dark hover:bg-gray-300 p-2 rounded"
+                className={`${
+                  isTransparentPage && isTop ? 'bg-white text-dark' : 'bg-[#E3E3E3] text-dark'
+                } hover:bg-gray-300 p-2 rounded`}
               >
                 Çıkış Yap
               </button>
@@ -99,7 +133,9 @@ const Navbar = () => {
             <>
               <button
                 onClick={() => openModal("signin")}
-                className="bg-[#E3E3E3] text-dark hover:bg-gray-300 p-2 rounded"
+                className={`${
+                  isTransparentPage && isTop ? 'bg-white text-dark' : 'bg-[#E3E3E3] text-dark'
+                } hover:bg-gray-300 p-2 rounded`}
               >
                 Giriş Yap
               </button>

@@ -113,12 +113,9 @@ const useAdminTrips = () => {
     }));
   };
   
-  const handleCancelTrips = () => {
-    const TripsToDelete = selectedTrip.map((trip) => trip.trip_id);
-    if (TripsToDelete) {
-      setSelectedTrip(TripsToDelete);
-      setIsModalOpen(false);
-    }
+  const handleCancelTrips = (tripId) => {
+    setSelectedTrip(tripId);
+    setIsModalOpen(true);
   };
   const confirmTripsCancel = async () => {
     if (!selectedTrip) return;
@@ -127,12 +124,8 @@ const useAdminTrips = () => {
       await axios.delete("https://localhost:44378/api/Trips/DeleteTrip", {
         data: { trip_id: selectedTrip }, 
       });
-  
       notify.success("Seferler basarıyla iptal edildi");
-      console.log(selectedTrip.trip_id);
-      
       setIsModalOpen(false); 
-      fetchTrips(); 
     } catch (err) {
       notify.error("Seferler iptal edilirken bir hata oluştu");
     }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import LoginRegisterModal from "../Modals/LoginRegisterModal";
 import useLogin from "../hooks/useLogin";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [showModal, setShowModal] = useState(false);
@@ -10,6 +11,7 @@ const Navbar = () => {
   const [isTop, setIsTop] = useState(true);
   const location = useLocation();
   const { logout } = useLogin();
+  const navigate = useNavigate();  
 
   const isAuthenticated = Boolean(localStorage.getItem("accessToken"));
   const isTransparentPage = location.pathname === "/" || location.pathname === "/mytickets";
@@ -51,7 +53,7 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     setUser(null); 
-    window.location.reload();
+    navigate("/");
   };
 
   return (

@@ -92,7 +92,7 @@ const useHome = () => {
     const selectedArrivalCity = destinations.find(d => d.id === parseInt(to))?.name;
   
     // Tarihi backend formatına dönüştür (YYYY-MM-DDTHH:MM:SS)
-    const formattedDate = format(new Date(date), "yyyy-dd-MM'T'00:00:00");
+    const formattedDate = format(new Date(date), "yyyy-MM-dd'T'00:00:00");
   
     // Seçilen kriterlere uyan ve tarihe göre filtrelenen seferi bul
     const selectedTrip = trips.find(

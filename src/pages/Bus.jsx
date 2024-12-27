@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useBuses from '../hooks/useBuses';
 import { format } from 'date-fns';
+import { tr } from "date-fns/locale";
 
 const Bus = () => {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ const Bus = () => {
   const { tripId, from, to, date } = location.state || {};
 
   const { buses, loading, error } = useBuses(tripId);
-  const formattedDate = format(new Date(date), "MM.dd.yyyy");
+  const formattedDate = format(new Date(date), "dd MMMM yyyy",{locale: tr});
   const handleTicketSelect = (bus) => {
     // Seats sayfasına navigate et ve bus bilgilerini state ile gönder
     navigate('/seats', { 

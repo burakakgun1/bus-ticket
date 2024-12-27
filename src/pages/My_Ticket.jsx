@@ -12,6 +12,7 @@ const MyTickets = () => {
     handleTicketCancel,
     confirmTicketCancel,
   } = useMyTickets();
+  
 
   if (loading) {
     return (
@@ -44,9 +45,10 @@ const MyTickets = () => {
               <thead>
                 <tr className="bg-orange-400 text-white">
                   <th className="py-2 px-4 border-b text-center">Sefer</th>
+                  <th className="py-2 px-4 border-b text-center">Tarih</th>
                   <th className="py-2 px-4 border-b text-center">Koltuk Numarası</th>
                   <th className="py-2 px-4 border-b text-center">Otobüs Şirketi</th>
-                  <th className="py-2 px-4 border-b text-center">İptal Durumu</th>
+                  <th className="py-2 px-4 border-b text-center">Bilet Durumu</th>
                   <th className="py-2 px-4 border-b text-center">İşlem</th>
                 </tr>
               </thead>
@@ -54,15 +56,16 @@ const MyTickets = () => {
                 {tickets.length > 0 ? (
                   tickets.map((ticket) => (
                     <tr key={ticket.ticket_id} className="border-b">
-                      <td className="py-2 px-4 text-center">{ticket.trip_name}</td>
-                      <td className="py-2 px-4 text-center">{ticket.seat_number}</td>
-                      <td className="py-2 px-4 text-center">{ticket.bus_company}</td>
-                      <td className="py-2 px-4 text-center">{ticket.is_cancelled ? 'İptal Edildi' : 'Aktif'}</td>
+                      <td className="py-4 px-4 text-center">{ticket.trip_name}</td>
+                      <td className="py-4 px-4 text-center">{ticket.trip_date}</td>
+                      <td className="py-4 px-4 text-center">{ticket.seat_number}</td>
+                      <td className="py-4 px-4 text-center">{ticket.bus_company}</td>
+                      <td className="py-4 px-4 text-center">{ticket.is_cancelled ? 'İptal Edildi' : 'Geçerli'}</td>
                       <td className="py-2 px-4 text-center">
                         {!ticket.is_cancelled && (
                           <button
                             onClick={() => handleTicketCancel(ticket)}
-                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                            className="bg-red-500 text-white px-2 py-2 rounded hover:bg-red-600"
                           >
                             Bileti İptal Et
                           </button>

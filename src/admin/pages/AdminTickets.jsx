@@ -21,6 +21,7 @@ const AdminTickets = () => {
           <thead>
             <tr className="bg-gray-800 text-white">
               <th className="py-2 px-4 border-b text-center">Sefer</th>
+              <th className="py-2 px-4 border-b text-center">Tarih</th>
               <th className="py-2 px-4 border-b text-center">Kullanıcı</th>
               <th className="py-2 px-4 border-b text-center">Koltuk Numarası</th>
               <th className="py-2 px-4 border-b text-center">Otobüs Şirketi</th>
@@ -32,11 +33,12 @@ const AdminTickets = () => {
             {tickets.length > 0 ? (
               tickets.map((ticket) => (
                 <tr key={ticket.ticket_id} className="border-b">
-                  <td className="py-2 px-4 text-center">{ticket.trip_name}</td>
-                  <td className="py-2 px-4 text-center">{ticket.user_name}</td>
-                  <td className="py-2 px-4 text-center">{ticket.seat_number}</td>
-                  <td className="py-2 px-4 text-center">{ticket.bus_company}</td>
-                  <td className="py-2 px-4 text-center">{ticket.is_cancelled ? 'İptal Edildi' : 'Aktif'}</td>
+                  <td className="py-4 px-4 text-center">{ticket.trip_name}</td>
+                  <td className="py-4 px-4 text-center">{ticket.trip_date}</td>
+                  <td className="py-4 px-4 text-center">{ticket.user_name}</td>
+                  <td className="py-4 px-4 text-center">{ticket.seat_number}</td>
+                  <td className="py-4 px-4 text-center">{ticket.bus_company}</td>
+                  <td className="py-4 px-4 text-center">{ticket.is_cancelled ? 'İptal Edildi' : 'Aktif'}</td>
                   <td className="py-2 px-4 text-center">
                     {!ticket.is_cancelled && (
                       <button

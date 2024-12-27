@@ -4,6 +4,8 @@ import { format } from "date-fns";
 import useNotification from "../components/Notification";
 import axios from "axios";
 import useTicket from "../hooks/useTicket";
+import { tr } from "date-fns/locale";
+
 
 const Ticket = () => {
  const location = useLocation();
@@ -11,7 +13,7 @@ const Ticket = () => {
  const notify = useNotification();
  const { bus, seats, from, to, date } = location.state || {};
  const { createTickets, loading, error } = useTicket();
- const formattedDate = format(new Date(date), "MM.dd.yyyy");
+ const formattedDate = format(new Date(date), "dd MMMM yyyy", {locale:tr});
  const [user, setUser] = useState(null);
 
  useEffect(() => {

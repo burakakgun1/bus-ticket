@@ -6,6 +6,7 @@ import { FaBus, FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 import useSeats from '../hooks/useSeats';
 import { format } from 'date-fns';
 import useNotification from '../components/Notification';
+import { tr } from "date-fns/locale";
 
 const Seats = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const Seats = () => {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [showGenderModal, setShowGenderModal] = useState(false);
   const [tempSeat, setTempSeat] = useState(null);
-  const formattedDate = format(new Date(date), "MM.dd.yyyy");
+  const formattedDate = format(new Date(date), "dd MMMM yyyy",{locale: tr});  
   
   const allSeats = Array.from({ length: 40 }, (_, index) => {
     const matchingSeat = seats.find(seat => seat.seat_number === index + 1);

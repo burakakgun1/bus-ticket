@@ -1,8 +1,8 @@
-// useAdminTickets.js
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import useNotification from '../../components/Notification';
-
+import { format } from "date-fns";
+import { tr } from "date-fns/locale";
 const useAdminTickets = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,10 +31,14 @@ const useAdminTickets = () => {
             seat_number: seatResponse.data.seat_number,
             bus_company: busResponse.data.company,
             user_name: `${userResponse.data.name} ${userResponse.data.surname}`,
+            trip_date: format(new Date(tripResponse.data.date_), "dd MMMM yyyy", {locale: tr}),
+            original_date: tripResponse.data.date_
           };
         })
       );
-      
+      setTickets(ticketsWithDetails.sort((a, b) => 
+        new Date(b.original_date) - new Date(a.original_date)
+      ));
       setTickets(ticketsWithDetails);
       setLoading(false);
     } catch (err) {
@@ -53,9 +57,7 @@ const useAdminTickets = () => {
     if (!selectedTicket) return;
 
     try {
-      await axios.delete('https://localhost:44378/api/Tickets/DeleteTicket', {
-        data: { ticket_id: selectedTicket.ticket_id }
-      });
+      await axios.post(`https://localhost:44378/api/Tickets/CancelTicket?ticketId=${selectedTicket.ticket_id}`);
 
       await axios.post(`https://localhost:44378/api/Seats/ReleaseSeat?seatId=${selectedTicket.seat_id}`);
 

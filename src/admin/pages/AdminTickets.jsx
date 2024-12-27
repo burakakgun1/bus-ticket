@@ -25,7 +25,7 @@ const AdminTickets = () => {
               <th className="py-2 px-4 border-b text-center">Kullanıcı</th>
               <th className="py-2 px-4 border-b text-center">Koltuk Numarası</th>
               <th className="py-2 px-4 border-b text-center">Otobüs Şirketi</th>
-              <th className="py-2 px-4 border-b text-center">İptal Durumu</th>
+              <th className="py-2 px-4 border-b text-center">Bilet Durumu</th>
               <th className="py-2 px-4 border-b text-center">İşlem</th>
             </tr>
           </thead>
@@ -38,7 +38,7 @@ const AdminTickets = () => {
                   <td className="py-4 px-4 text-center">{ticket.user_name}</td>
                   <td className="py-4 px-4 text-center">{ticket.seat_number}</td>
                   <td className="py-4 px-4 text-center">{ticket.bus_company}</td>
-                  <td className="py-4 px-4 text-center">{ticket.is_cancelled ? 'İptal Edildi' : 'Aktif'}</td>
+                  <td className="py-4 px-4 text-center">{ticket.is_cancelled ? 'İptal Edildi' : 'Geçerli'}</td>
                   <td className="py-2 px-4 text-center">
                     {!ticket.is_cancelled && (
                       <button

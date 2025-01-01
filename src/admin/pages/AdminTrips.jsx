@@ -2,6 +2,7 @@ import React from "react";
 import useAdminTrips from "../hooks/useAdminTrips";
 import useNotification from "../../components/Notification";
 import ConfirmModal from "../../Modals/ConfirmModal";
+import Pagination from "../../components/Pagination";
 
 const AdminTrips = () => {
   const {
@@ -20,6 +21,14 @@ const AdminTrips = () => {
     isModalOpen,
     setIsModalOpen,
     confirmTripsCancel,
+    currentPage,
+    totalPages,
+    setCurrentPage,
+    currentItems,
+    searchTerm,
+    handleSearch,
+    itemsPerPage,
+    handleItemsPerPageChange,
   } = useAdminTrips();
 
   const notify = useNotification();
@@ -87,6 +96,15 @@ const AdminTrips = () => {
           Sefer Ekle
         </button>
       </div>
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Ara..."
+          value={searchTerm}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="w-full max-w-md px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
 
       {/* Seferler Tablosu */}
       <div className="overflow-x-auto">
@@ -101,8 +119,8 @@ const AdminTrips = () => {
             </tr>
           </thead>
           <tbody>
-            {trips.length > 0 ? (
-              trips.map((trip) => (
+            {currentItems.length > 0 ? (
+              currentItems.map((trip) => (
                 <tr key={trip.trip_id} className="border-b">
                   {editingTrip && editingTrip.trip_id === trip.trip_id ? (
                     // Düzenleme modu
@@ -200,6 +218,13 @@ const AdminTrips = () => {
         onConfirm={confirmTripsCancel}
         title="Sefer Silme Onayı"
         message="Seferi silmek istediginizden emin misiniz?"
+      />
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={handleItemsPerPageChange}
       />
     </div>
   );

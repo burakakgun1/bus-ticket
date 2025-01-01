@@ -6,11 +6,9 @@ import { tr } from "date-fns/locale";
 
 const Bus = () => {
   const navigate = useNavigate();
-  const [selectedTicket, setSelectedTicket] = useState(null);
   const location = useLocation();
   const { tripId, from, to, date } = location.state || {};
-
-  const { buses, loading, error } = useBuses(tripId);
+  const { buses, loading, error, formatDepartureTime} = useBuses(tripId);
   const formattedDate = format(new Date(date), "dd MMMM yyyy",{locale: tr});
   const handleTicketSelect = (bus) => {
     // Seats sayfasına navigate et ve bus bilgilerini state ile gönder
@@ -61,7 +59,7 @@ const Bus = () => {
             <h1 className="text-4xl font-extrabold text-white text-center">
               {`${from} - ${to} Seferleri`}
             </h1>
-            <div className="w-24"></div> {/* Boşluk için placeholder */}
+            <div className="w-24"></div> 
           </div>
           <p className="mb-8 text-xl text-gray-200 text-center">{`${formattedDate} için mevcut seferler:`}</p>
           <ul className="space-y-8">
@@ -77,7 +75,7 @@ const Bus = () => {
                       <p className="text-2xl font-semibold text-gray-800">
                         {bus.company || 'Bilinmeyen Firma'}
                       </p>
-                      <p className="text-gray-600">Kalkış Saati: {bus.departure_time}</p>
+                      <p className="text-gray-600">Kalkış Saati: {formatDepartureTime(bus.departure_time)}</p>
                       <p className="text-gray-500">Plaka: {bus.plate_number || 'Bilinmeyen Plaka'}</p>
                     </div>
                     <div className="hidden md:block text-center">
@@ -91,7 +89,7 @@ const Bus = () => {
                 </li>
               ))
             ) : (
-              <p className="text-center text-white text-xl">Bu tarihe ait sefer bulunamadı.</p>
+              <p className="text-center text-white text-xl">Bu sefere ait otobüs bulunamadı.</p>
             )}
           </ul>
         </div>

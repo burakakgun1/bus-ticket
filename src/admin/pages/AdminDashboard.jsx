@@ -30,7 +30,7 @@ const AdminDashboard = () => {
   const { trips, loading: tripsLoading } = useAdminTrips();
   const { buses, loading: busesLoading } = useAdminBuses();
   const { tickets, loading: ticketsLoading } = useAdminTickets();
-
+  console.log(tickets)
   if (tripsLoading || busesLoading || ticketsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -205,7 +205,7 @@ const AdminDashboard = () => {
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-bold mb-4 text-gray-800">Son Satılan Biletler</h2>
         <div className="space-y-4">
-          {tickets.slice(-5).map((ticket) => {
+          {tickets.slice(0,5).map((ticket) => {
             const bus = buses.find(b => b.bus_id === ticket.bus_id);
             const trip = trips.find(t => t.trip_id === ticket.trip_id);
             return (

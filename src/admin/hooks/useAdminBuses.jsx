@@ -10,6 +10,10 @@ const useAdminBuses = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBus, setSelectedBus] = useState(null);
   const notify = useNotification();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredItems, setFilteredItems] = useState([]);
   const [newBus, setNewBus] = useState({
     plate_number: '',
     company: '',
@@ -32,6 +36,32 @@ const useAdminBuses = () => {
 
     fetchBuses();
   }, []);
+
+  const handleItemsPerPageChange = (value) => {
+    setItemsPerPage(Number(value));
+    setCurrentPage(1); // Sayfa sayısı değiştiğinde ilk sayfaya dön
+  };
+
+  const handleSearch = (searchValue) => {
+    setSearchTerm(searchValue);
+    setCurrentPage(1);
+  };
+
+  const filterBuses = () => {
+    return buses.filter(bus => 
+      searchTerm === '' || 
+      bus.trip_id.toString().includes(searchTerm.toString())
+    );
+  };
+
+  useEffect(() => {
+    setFilteredItems(filterBuses());
+  }, [buses, searchTerm]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
   const handleEditClick = (bus) => {
     setEditingBus({ ...bus });
@@ -185,6 +215,13 @@ const useAdminBuses = () => {
     }));
   };
 
+  const formatDepartureTime = (hour) => {
+    if (typeof hour !== 'number') return '--:00';
+    // Saati iki haneli formata çevirme
+    const formattedHour = hour < 10 ? `0${hour}` : `${hour}`;
+    return `${formattedHour}:00`;
+  };
+
   return {
     buses,
     loading,
@@ -200,7 +237,16 @@ const useAdminBuses = () => {
     handleCancelBus,
     confirmBusCancel,
     setIsModalOpen,
-    isModalOpen
+    isModalOpen,
+    formatDepartureTime,
+    currentPage,
+    totalPages,
+    setCurrentPage,
+    currentItems,
+    searchTerm,
+    handleSearch,
+    itemsPerPage,
+    handleItemsPerPageChange,
   };
 };
 

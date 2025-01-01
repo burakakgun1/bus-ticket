@@ -12,6 +12,7 @@ const Ticket = () => {
  const navigate = useNavigate();
  const notify = useNotification();
  const { bus, seats, from, to, date } = location.state || {};
+ const formattedDepartureTime = `${bus.departure_time < 10 ? "0" : ""}${bus.departure_time}:00`;
  const { createTickets, loading, error } = useTicket();
  const formattedDate = format(new Date(date), "dd MMMM yyyy", {locale:tr});
  const [user, setUser] = useState(null);
@@ -123,8 +124,11 @@ const Ticket = () => {
              <p className="mb-2">
                <strong>Güzergah:</strong> {from} - {to}
              </p>
-             <p>
+             <p className="mb-2">
                <strong>Tarih:</strong> {formattedDate}
+             </p>
+             <p>
+               <strong>Tarih:</strong> {formattedDepartureTime}
              </p>
            </div>
 

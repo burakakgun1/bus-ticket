@@ -10,6 +10,10 @@ const useAdminTrips = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const notify = useNotification();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredItems, setFilteredItems] = useState([]);
   const [newTrip, setNewTrip] = useState({
     departure_city: '',
     arrival_city: '',
@@ -30,6 +34,32 @@ const useAdminTrips = () => {
 
     fetchTrips();
   }, []);
+
+  const handleItemsPerPageChange = (value) => {
+    setItemsPerPage(Number(value));
+    setCurrentPage(1); // Sayfa sayısı değiştiğinde ilk sayfaya dön
+  };
+
+  const handleSearch = (searchValue) => {
+    setSearchTerm(searchValue);
+    setCurrentPage(1);
+  };
+
+  const filterTrips = () => {
+    return trips.filter(trip => 
+      trip.departure_city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trip.arrival_city.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
+
+  useEffect(() => {
+    setFilteredItems(filterTrips());
+  }, [trips, searchTerm]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
   const handleEditClick = (trip) => {
     setEditingTrip({ ...trip });
@@ -104,7 +134,6 @@ const useAdminTrips = () => {
     }
   };
 
-  // Yeni sefer input değişikliği
   const handleNewTripInputChange = (e) => {
     const { name, value } = e.target;
     setNewTrip((prev) => ({
@@ -146,7 +175,15 @@ const useAdminTrips = () => {
     handleCancelTrips,
     confirmTripsCancel,
     setIsModalOpen,
-    isModalOpen
+    isModalOpen,
+    currentPage,
+    totalPages,
+    setCurrentPage,
+    currentItems,
+    searchTerm,
+    handleSearch,
+    itemsPerPage,
+    handleItemsPerPageChange,
   };
 };
 

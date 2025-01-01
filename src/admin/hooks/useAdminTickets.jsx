@@ -10,6 +10,8 @@ const useAdminTickets = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const notify = useNotification();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const fetchTickets = async () => {
     try {
@@ -32,7 +34,9 @@ const useAdminTickets = () => {
             bus_company: busResponse.data.company,
             user_name: `${userResponse.data.name} ${userResponse.data.surname}`,
             trip_date: format(new Date(tripResponse.data.date_), "dd MMMM yyyy", {locale: tr}),
-            original_date: tripResponse.data.date_
+            original_date: tripResponse.data.date_,
+            ticket_status: getTicketStatus(ticket.is_cancelled, ticket.status, tripResponse.data.date_),
+            departure_time: busResponse.data.departure_time
           };
         })
       );
@@ -46,6 +50,36 @@ const useAdminTickets = () => {
       notify.error('Biletler alınırken bir hata oluştu.');
       setLoading(false);
     }
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = tickets.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(tickets.length / itemsPerPage);
+
+  const handleItemsPerPageChange = (value) => {
+    setItemsPerPage(Number(value));
+    setCurrentPage(1);
+  };
+  
+  const getTicketStatus = (isCancelled, status, tripDate) => {
+    if (isCancelled) {
+      return { text: "İptal Edildi", class: "text-red-500" };
+    }
+    if (status === "Passive") {
+      return { text: "Süresi Doldu", class: "text-gray-500" };
+    }
+    if (new Date(tripDate) < new Date()) {
+      return { text: "Süresi Doldu", class: "text-gray-500" };
+    }
+    return { text: "Aktif", class: "text-green-500" };
+  };
+
+  const formatDepartureTime = (hour) => {
+    if (typeof hour !== 'number') return '--:00';
+    // Saati iki haneli formata çevirme
+    const formattedHour = hour < 10 ? `0${hour}` : `${hour}`;
+    return `${formattedHour}:00`;
   };
 
   const handleTicketCancel = async (ticket) => {
@@ -81,7 +115,14 @@ const useAdminTickets = () => {
     setIsModalOpen,
     handleTicketCancel,
     confirmTicketCancel,
-    selectedTicket
+    selectedTicket,
+    formatDepartureTime,
+    currentPage,
+    totalPages,
+    setCurrentPage,
+    currentItems,
+    itemsPerPage,
+    handleItemsPerPageChange,
   };
 };
 

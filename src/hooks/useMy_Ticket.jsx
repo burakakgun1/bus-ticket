@@ -11,6 +11,8 @@ const useMyTickets = () => {
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [selectedTicket, setSelectedTicket] = useState(null);
  const notify = useNotification();
+ const [currentPage, setCurrentPage] = useState(1);
+ const [itemsPerPage, setItemsPerPage] = useState(10);
 
  const fetchTickets = async () => {
    const user = JSON.parse(localStorage.getItem("user"));
@@ -48,7 +50,9 @@ const useMyTickets = () => {
              seat_number: seatResponse.data.seat_number,
              bus_company: busResponse.data.company,
              trip_date: format(new Date(tripResponse.data.date_), "dd MMMM yyyy", {locale: tr}),
-             original_date: tripResponse.data.date_
+             original_date: tripResponse.data.date_,
+             ticket_status: getTicketStatus(ticket.is_cancelled, ticket.status, tripResponse.data.date_),
+            departure_time: busResponse.data.departure_time
            };
          })
        );
@@ -68,6 +72,36 @@ const useMyTickets = () => {
      setLoading(false);
    }
  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = tickets.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(tickets.length / itemsPerPage);
+
+  const handleItemsPerPageChange = (value) => {
+    setItemsPerPage(Number(value));
+    setCurrentPage(1);
+  };
+
+ const getTicketStatus = (isCancelled, status, tripDate) => {
+  if (isCancelled) {
+    return { text: "İptal Edildi", class: "text-red-500" };
+  }
+  if (status === "Passive") {
+    return { text: "Süresi Doldu", class: "text-gray-500" };
+  }
+  if (new Date(tripDate) < new Date()) {
+    return { text: "Süresi Doldu", class: "text-gray-500" };
+  }
+  return { text: "Aktif", class: "text-green-500" };
+};
+
+const formatDepartureTime = (hour) => {
+  if (typeof hour !== 'number') return '--:00';
+  // Saati iki haneli formata çevirme
+  const formattedHour = hour < 10 ? `0${hour}` : `${hour}`;
+  return `${formattedHour}:00`;
+};
 
  const handleTicketCancel = async (ticket) => {
    setSelectedTicket(ticket);
@@ -104,6 +138,13 @@ const useMyTickets = () => {
    setIsModalOpen,
    handleTicketCancel,
    confirmTicketCancel,
+   formatDepartureTime,
+   currentPage,
+   totalPages,
+   setCurrentPage,
+   currentItems,
+   itemsPerPage,
+   handleItemsPerPageChange,
  };
 };
 

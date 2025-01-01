@@ -5,6 +5,12 @@ const useBuses = (tripId) => {
   const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const formatDepartureTime = (hour) => {
+    if (typeof hour !== 'number') return '--:00';
+    // Saati iki haneli formata çevirme
+    const formattedHour = hour < 10 ? `0${hour}` : `${hour}`;
+    return `${formattedHour}:00`;
+  };
   const baseURL = 'https://localhost:44378';
 
   useEffect(() => {
@@ -43,7 +49,7 @@ const useBuses = (tripId) => {
     fetchBuses();
   }, [tripId]);
 
-  return { buses, loading, error };
+  return { buses, loading, error,formatDepartureTime};
 };
 
 export default useBuses;

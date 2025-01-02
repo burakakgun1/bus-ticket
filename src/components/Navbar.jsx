@@ -76,7 +76,7 @@ const Navbar = () => {
                   isTransparentPage && isTop ? 'text-white' : 'text-dark'
                 } ${location.pathname === "/" ? "bg-gray-200 bg-opacity-20" : ""} p-2 rounded`}
               >
-                HOME
+                ANA SAYFA
               </Link>
             </li>
             {isAuthenticated && (

@@ -126,7 +126,7 @@ const AdminBuses = () => {
       <div className="mb-4">
         <input
           type="number"
-          placeholder="Trip ID'ye göre ara..."
+          placeholder="Sefer ID'ye göre ara..."
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
           className="w-full max-w-md px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"

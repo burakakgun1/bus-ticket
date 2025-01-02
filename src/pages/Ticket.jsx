@@ -128,7 +128,7 @@ const Ticket = () => {
                <strong>Tarih:</strong> {formattedDate}
              </p>
              <p>
-               <strong>Tarih:</strong> {formattedDepartureTime}
+               <strong>Kalkış Saati:</strong> {formattedDepartureTime}
              </p>
            </div>
 

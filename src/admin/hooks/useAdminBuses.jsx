@@ -86,22 +86,28 @@ const useAdminBuses = () => {
         price: parseFloat(editingBus.price),
         departure_time: editingBus.departure_time,
       };
-
+  
       await axios.put('https://localhost:44378/api/Buses/UpdateBus', updateData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
       });
-
+  
+      setBuses((prevBuses) =>
+        prevBuses.map((bus) =>
+          bus.bus_id === editingBus.bus_id ? { ...bus, ...updateData } : bus
+        )
+      );
+  
       notify.success('Otobüs bilgileri güncellendi');
       setEditingBus(null);
-      window.location.reload(); 
     } catch (error) {
       console.error('Güncelleme hatası:', error);
       notify.error('Otobüs güncellenirken bir hata oluştu');
     }
   };
+  
 
   const handleCancelEdit = () => {
     setEditingBus(null);
@@ -200,7 +206,7 @@ const useAdminBuses = () => {
         price: 0,
         departure_time: 0,
       });
-      window.location.reload();
+      setBuses(prevBuses => [...prevBuses, addedBus]);
     } catch (error) {
       console.error('Hata:', error);
       notify.error('Yeni otobüs eklenirken bir hata oluştu');

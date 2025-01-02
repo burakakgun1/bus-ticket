@@ -62,7 +62,10 @@ const useAdminTrips = () => {
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
   const handleEditClick = (trip) => {
-    setEditingTrip({ ...trip });
+    const date = new Date(trip.date_);
+    date.setDate(date.getDate() + 1);  
+    const formattedDate = date.toISOString().slice(0,10);
+    setEditingTrip({ ...trip, date_: formattedDate });
   };
 
   const handleInputChange = (e) => {
@@ -76,23 +79,26 @@ const useAdminTrips = () => {
   const handleSaveUpdate = async (notify) => {
     try {
       const token = localStorage.getItem('accessToken');
+      const dateWithTime = `${editingTrip.date_}T00:00:00`;
+  
       const updateData = {
         trip_id: editingTrip.trip_id,
         departure_city: editingTrip.departure_city,
         arrival_city: editingTrip.arrival_city,
-        date_: editingTrip.date_,
+        date_: dateWithTime,
       };
-
+  
       await axios.put('https://localhost:44378/api/Trips/UpdateTrip', updateData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
       });
-
+  
+      const response = await axios.get('https://localhost:44378/api/Trips');
+      setTrips(Array.isArray(response.data) ? response.data : []);
       notify.success('Sefer bilgileri güncellendi');
-      setEditingTrip(null); // Düzenleme modundan çıkış
-      window.location.reload(); // Sayfayı yenile
+      setEditingTrip(null);
     } catch (error) {
       console.error('Güncelleme hatası:', error);
       notify.error('Sefer güncellenirken bir hata oluştu');
@@ -108,31 +114,35 @@ const useAdminTrips = () => {
   const handleAddTrip = async (notify) => {
     try {
       const token = localStorage.getItem('accessToken');
+      const selectedDate = newTrip.date_;
+      const dateWithTime = `${selectedDate}T00:00:00`;
+   
       const newTripData = {
         departure_city: newTrip.departure_city,
         arrival_city: newTrip.arrival_city,
-        date_: newTrip.date_,
+        date_: dateWithTime,
       };
-
+   
       await axios.post('https://localhost:44378/api/Trips/CreateTrip', newTripData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
       });
-
+   
+      const response = await axios.get('https://localhost:44378/api/Trips');
+      setTrips(Array.isArray(response.data) ? response.data : []);
       notify.success('Yeni sefer eklendi');
       setNewTrip({
         departure_city: '',
         arrival_city: '',
         date_: '',
-      }); // Formu sıfırla
-      window.location.reload(); // Sayfayı yenile
+      });
     } catch (error) {
       console.error('Yeni sefer eklenirken hata:', error);
       notify.error('Yeni sefer eklenirken bir hata oluştu');
     }
-  };
+   };
 
   const handleNewTripInputChange = (e) => {
     const { name, value } = e.target;
@@ -153,8 +163,10 @@ const useAdminTrips = () => {
       await axios.delete("https://localhost:44378/api/Trips/DeleteTrip", {
         data: { trip_id: selectedTrip }, 
       });
+      const response = await axios.get('https://localhost:44378/api/Trips');
+      setTrips(Array.isArray(response.data) ? response.data : []);
       notify.success("Seferler basarıyla iptal edildi");
-      setIsModalOpen(false); 
+      setIsModalOpen(false);
     } catch (err) {
       notify.error("Seferler iptal edilirken bir hata oluştu");
     }

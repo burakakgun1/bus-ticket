@@ -81,7 +81,7 @@ const AdminTrips = () => {
             </label>
             <input
               id="date_"
-              type="datetime-local"
+              type="date"
               name="date_"
               value={newTrip.date_}
               onChange={handleNewTripInputChange}
@@ -145,7 +145,7 @@ const AdminTrips = () => {
                       </td>
                       <td className="py-2 px-4">
                         <input
-                          type="datetime-local"
+                          type="date"
                           name="date_"
                           value={editingTrip.date_}
                           onChange={handleInputChange}

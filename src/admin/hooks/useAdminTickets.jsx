@@ -66,10 +66,10 @@ const useAdminTickets = () => {
     if (isCancelled) {
       return { text: "İptal Edildi", class: "text-red-500" };
     }
-    if (status === "Passive") {
+    if (status === "Pasif") {
       return { text: "Süresi Doldu", class: "text-gray-500" };
     }
-    if (new Date(tripDate) < new Date()) {
+    if (new Date(tripDate) < new Date()+1) {
       return { text: "Süresi Doldu", class: "text-gray-500" };
     }
     return { text: "Aktif", class: "text-green-500" };

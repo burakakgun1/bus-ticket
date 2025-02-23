@@ -16,17 +16,13 @@ const useHome = () => {
 
   const baseURL = 'https://localhost:44378'; // API Base URL
 
-  // Lokasyonları (şehirleri) yükleme
   useEffect(() => {
     const fetchLocations = async () => {
       setLoading(true);
       try {
         const response = await axios.get(`${baseURL}/api/Trips`);
         
-        // Benzersiz kalkış şehirlerini al
         const uniqueDepartureCities = [...new Set(response.data.map(trip => trip.departure_city))];
-        
-        // Lokasyonları ID ile oluştur
         setLocations(
           uniqueDepartureCities.map((city, index) => ({
             id: index + 1, 
@@ -34,7 +30,6 @@ const useHome = () => {
           }))
         );
 
-        // Tüm seferleri kaydet
         setTrips(response.data);
       } catch (error) {
         setError('Şehirler yüklenirken bir hata oluştu');
@@ -47,7 +42,6 @@ const useHome = () => {
     fetchLocations();
   }, []);
 
-  // Varış şehirlerini güncelleme
   useEffect(() => {
     const fetchDestinations = async () => {
       if (!from) {
@@ -55,10 +49,8 @@ const useHome = () => {
         return;
       }
 
-      // Seçilen kalkış şehrinin adını bul
       const selectedDepartureCity = locations.find(l => l.id === parseInt(from))?.name;
 
-      // Seçilen kalkış şehrine göre varış şehirlerini filtrele
       const uniqueDestinations = [
         ...new Set(
           trips
@@ -67,7 +59,6 @@ const useHome = () => {
         )
       ];
 
-      // Varış şehirlerini ID ile oluştur
       setDestinations(
         uniqueDestinations.map((city, index) => ({
           id: index + 1, 
@@ -79,22 +70,16 @@ const useHome = () => {
     fetchDestinations();
   }, [from, locations, trips]);
 
-  // Arama işlemi
   const handleSearch = async () => {
-    // Tüm alanların dolu olup olmadığını kontrol et
     if (!from || !to || !date) {
       setError('Lütfen tüm alanları doldurunuz');
       return;
     }
   
-    // Seçilen kalkış ve varış şehirlerinin adlarını bul
     const selectedDepartureCity = locations.find(l => l.id === parseInt(from))?.name;
     const selectedArrivalCity = destinations.find(d => d.id === parseInt(to))?.name;
-  
-    // Tarihi backend formatına dönüştür (YYYY-MM-DDTHH:MM:SS)
     const formattedDate = format(new Date(date), "yyyy-MM-dd'T'00:00:00");
   
-    // Seçilen kriterlere uyan ve tarihe göre filtrelenen seferi bul
     const selectedTrip = trips.find(
       trip => 
         trip.departure_city === selectedDepartureCity && 
@@ -102,7 +87,6 @@ const useHome = () => {
         trip.date_ === formattedDate
     );
   
-    // Sefer bulunamazsa hata ver
     if (!selectedTrip) {
       setError('Bu güzergah ve tarih için sefer bulunamadı');
       return;

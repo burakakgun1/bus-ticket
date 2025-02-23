@@ -106,7 +106,11 @@ const MyTickets = () => {
                       <td className="py-2 px-4 text-center">
                         {!ticket.is_cancelled &&
                           ticket.status != "Pasif" &&
-                          new Date(ticket.original_date) > new Date() && (
+                          (() => {
+                            const date = new Date(ticket.original_date);
+                            date.setDate(date.getDate() + 1);
+                            return date > new Date();
+                          })() && (
                             <button
                               onClick={() => handleTicketCancel(ticket)}
                               className="bg-red-500 text-white px-2 py-2 rounded hover:bg-red-600"
